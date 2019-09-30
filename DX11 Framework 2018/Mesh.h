@@ -12,8 +12,15 @@
 using namespace DirectX;
 
 class Mesh {
+private:
+	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+	HRESULT InitShadersAndInputLayout();
+	HRESULT InitVertexBuffer();
+	HRESULT InitIndexBuffer();
+
+	ID3D11Device* device;
+
 public:
 	void Update();
 	void Draw();
 };
-
