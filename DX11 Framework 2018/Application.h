@@ -5,13 +5,22 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxcolors.h>
-
 #include "resource.h"
-#include "Structs.h"
 
 using namespace DirectX;
 
+struct SimpleVertex
+{
+    XMFLOAT3 Pos;
+    XMFLOAT4 Color;
+};
 
+struct ConstantBuffer
+{
+	XMMATRIX mWorld;
+	XMMATRIX mView;
+	XMMATRIX mProjection;
+};
 
 class Application
 {
@@ -30,15 +39,20 @@ private:
 	ID3D11Buffer*           _pVertexBuffer;
 	ID3D11Buffer*           _pIndexBuffer;
 	ID3D11Buffer*           _pConstantBuffer;
-	XMFLOAT4X4              _world;
+	XMFLOAT4X4              _world, _world2;
 	XMFLOAT4X4              _view;
 	XMFLOAT4X4              _projection;
+	ID3D11DepthStencilView* _depthStencilView;
+	ID3D11Texture2D*		_depthStencilBuffer;
 
 private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 	HRESULT InitDevice();
 	void Cleanup();
-
+	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
+	HRESULT InitShadersAndInputLayout();
+	HRESULT InitVertexBuffer();
+	HRESULT InitIndexBuffer();
 
 	UINT _WindowHeight;
 	UINT _WindowWidth;
