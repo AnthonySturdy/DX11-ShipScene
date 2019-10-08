@@ -67,11 +67,13 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
         return E_FAIL;
     }
 
+	srand(time(NULL));
+
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
 
     // Initialize the view matrix
-	XMVECTOR Eye = XMVectorSet(0.0f, 0.0f, -4.0f, 0.0f);
+	XMVECTOR Eye = XMVectorSet(0.0f, 7.0f, -10.0f, 0.0f);
 	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -79,6 +81,13 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
     // Initialize the projection matrix
 	XMStoreFloat4x4(&_projection, XMMatrixPerspectiveFovLH(XM_PIDIV2, _WindowWidth / (FLOAT) _WindowHeight, 0.01f, 100.0f));
+
+	//Reserve belt world matrices
+	for (int i = 0; i < 100; i++) {
+		_worldBelt.push_back(XMFLOAT4X4());
+		random.push_back(RandomFloat(-1.0f, 1.0f));
+	}
+
 
 	return S_OK;
 }
@@ -408,6 +417,20 @@ HRESULT Application::InitDevice()
 	bd.CPUAccessFlags = 0;
     hr = _pd3dDevice->CreateBuffer(&bd, nullptr, &_pConstantBuffer);
 
+	//Create wireframe render state
+	D3D11_RASTERIZER_DESC wfdesc;
+	ZeroMemory(&wfdesc, sizeof(D3D11_RASTERIZER_DESC));
+	wfdesc.FillMode = D3D11_FILL_WIREFRAME;
+	wfdesc.CullMode = D3D11_CULL_NONE;
+	hr = _pd3dDevice->CreateRasterizerState(&wfdesc, &_wireFrameRenderState);
+
+	//Create solid render state
+	D3D11_RASTERIZER_DESC wfdesc1;
+	ZeroMemory(&wfdesc1, sizeof(D3D11_RASTERIZER_DESC));
+	wfdesc1.FillMode = D3D11_FILL_SOLID;
+	wfdesc1.CullMode = D3D11_CULL_BACK;
+	hr = _pd3dDevice->CreateRasterizerState(&wfdesc1, &_solidRenderState);
+
     if (FAILED(hr))
         return hr;
 
@@ -417,7 +440,6 @@ HRESULT Application::InitDevice()
 void Application::Cleanup()
 {
     if (_pImmediateContext) _pImmediateContext->ClearState();
-
     if (_pConstantBuffer) _pConstantBuffer->Release();
     if (_pVertexBuffer) _pVertexBuffer->Release();
     if (_pIndexBuffer) _pIndexBuffer->Release();
@@ -430,6 +452,7 @@ void Application::Cleanup()
     if (_pd3dDevice) _pd3dDevice->Release();
 	if (_depthStencilView) _depthStencilView->Release();
 	if (_depthStencilBuffer) _depthStencilBuffer->Release();
+	if (_wireFrameRenderState) _wireFrameRenderState->Release();
 }
 
 void Application::Update()
@@ -452,11 +475,19 @@ void Application::Update()
         t = (dwTimeCur - dwTimeStart) / 1000.0f;
     }
 
+	if (GetAsyncKeyState(VK_UP)) {
+		isAllWireframe = !isAllWireframe;
+	}
+
     //
     // Animate the cube
     //
 	XMStoreFloat4x4(&_world, XMMatrixRotationY(t));
-	XMStoreFloat4x4(&_world2, XMMatrixRotationX(t * 1.4f) * XMMatrixTranslation(2.0f, 0.0f, 2.0f));	//Apply rotation and translation to second world matrix
+	XMStoreFloat4x4(&_world2, XMMatrixScaling(0.4f, 0.4f, 0.4f) * XMMatrixRotationY(-t * 5.0f) * XMMatrixTranslation(4.0f, 0.0f, 0.0f) * XMMatrixRotationY(-t * 0.4f));	//Apply transform to second world matrix
+	XMStoreFloat4x4(&_world3, XMMatrixScaling(0.6f, 0.6f, 0.6f) * XMMatrixRotationY(-t * 3.0f) * XMMatrixTranslation(12.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * 1.5f));	//Apply transform to third world matrix
+	for (int i = 0; i < 100; i++) {
+		XMStoreFloat4x4(&_worldBelt[i], XMMatrixScaling(0.1f, 0.1f, 0.1f) * XMMatrixRotationY(-t * 3.0f) * XMMatrixTranslation((i/10.0f * random[i]) + 3.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * i/30.0f * random[i]) * XMMatrixTranslation(12.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * 1.5f));	//Apply transform to third world matrix
+	}
 }
 
 void Application::Draw()
@@ -485,16 +516,32 @@ void Application::Draw()
     //
     // Renders a triangle
     //
+	_pImmediateContext->RSSetState(_wireFrameRenderState);
+
 	_pImmediateContext->VSSetShader(_pVertexShader, nullptr, 0);
 	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
 	_pImmediateContext->DrawIndexed(36, 0, 0);    
 
+	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
+
 	world = XMLoadFloat4x4(&_world2);		//Convert XMFloat4x4 to XMMATRIX object
 	cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
 	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
 	_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
+
+	world = XMLoadFloat4x4(&_world3);		//Convert XMFloat4x4 to XMMATRIX object
+	cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
+	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
+	_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
+	
+	for (int i = 0; i < 100; i++) {
+		world = XMLoadFloat4x4(&_worldBelt[i]);		//Convert XMFloat4x4 to XMMATRIX object
+		cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
+		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
+		_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
+	}
 
     //
     // Present our back buffer to our front buffer

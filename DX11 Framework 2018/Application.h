@@ -5,6 +5,8 @@
 #include <d3dcompiler.h>
 #include <directxmath.h>
 #include <directxcolors.h>
+#include <vector>
+#include <time.h>
 #include "resource.h"
 
 using namespace DirectX;
@@ -39,11 +41,17 @@ private:
 	ID3D11Buffer*           _pVertexBuffer;
 	ID3D11Buffer*           _pIndexBuffer;
 	ID3D11Buffer*           _pConstantBuffer;
-	XMFLOAT4X4              _world, _world2;
+	XMFLOAT4X4              _world, _world2, _world3;
+	std::vector<XMFLOAT4X4>	_worldBelt;
 	XMFLOAT4X4              _view;
 	XMFLOAT4X4              _projection;
 	ID3D11DepthStencilView* _depthStencilView;
 	ID3D11Texture2D*		_depthStencilBuffer;
+	ID3D11RasterizerState*	_wireFrameRenderState;
+	ID3D11RasterizerState*	_solidRenderState;
+
+	bool isAllWireframe = false;
+	std::vector<float> random;
 
 private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
@@ -53,6 +61,13 @@ private:
 	HRESULT InitShadersAndInputLayout();
 	HRESULT InitVertexBuffer();
 	HRESULT InitIndexBuffer();
+
+	float RandomFloat(float a, float b) {
+		float random = ((float)rand()) / (float)RAND_MAX;
+		float diff = b - a;
+		float r = random * diff;
+		return a + r;
+	}
 
 	UINT _WindowHeight;
 	UINT _WindowWidth;
