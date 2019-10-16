@@ -183,6 +183,12 @@ HRESULT Application::InitVertexBuffer()
 		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT4(1, 0, 0, 1), },
 	};
 
+	std::vector<XMFLOAT3> plane = CreatePlaneVertices(PLANE_WIDTH, PLANE_HEIGHT);	//Generate vertex positions
+	SimpleVertex planeVertices[PLANE_WIDTH * PLANE_HEIGHT];	//Create vertex buffer
+	for (int i = 0; i < PLANE_WIDTH * PLANE_HEIGHT; i++) {	//Fill vertex buffer
+		planeVertices[i] = { plane[i], XMFLOAT4(1, 0.5, 0, 1) };
+	}
+
 	//Create cube vertex buffer
     D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
@@ -209,7 +215,21 @@ HRESULT Application::InitVertexBuffer()
 	ZeroMemory(&InitData1, sizeof(InitData1));
 	InitData1.pSysMem = pyramidVertices;
 
-    hr = _pd3dDevice->CreateBuffer(&bd, &InitData1, &_pPyramidVertexBuffer);
+    hr = _pd3dDevice->CreateBuffer(&bd1, &InitData1, &_pPyramidVertexBuffer);
+
+	//Create plane vertex buffer
+	D3D11_BUFFER_DESC bd2;
+	ZeroMemory(&bd2, sizeof(bd2));
+	bd2.Usage = D3D11_USAGE_DEFAULT;
+	bd2.ByteWidth = sizeof(SimpleVertex) * plane.size();
+	bd2.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+	bd2.CPUAccessFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA InitData2;
+	ZeroMemory(&InitData2, sizeof(InitData2));
+	InitData2.pSysMem = planeVertices;
+
+	hr = _pd3dDevice->CreateBuffer(&bd2, &InitData2, &_pPlaneVertexBuffer);
 
     if (FAILED(hr))
         return hr;
@@ -242,6 +262,12 @@ HRESULT Application::InitIndexBuffer()
 		1, 0, 3
 	};
 
+	std::vector<int> plane = CreatePlaneIndices(PLANE_WIDTH, PLANE_HEIGHT);
+	WORD planeIndices[(PLANE_WIDTH - 1) * (PLANE_HEIGHT - 1) * 6];	//Create vertex buffer
+	for (int i = 0; i < (PLANE_WIDTH - 1) * (PLANE_HEIGHT - 1) * 6; i++) {	//Loop (sizex-1 * sizey-1 * amountOfIndicesPerSquareWhichIsSix) times
+		planeIndices[i] = plane[i];
+	}
+
 	//Create cube index buffer
 	D3D11_BUFFER_DESC bd;
 	ZeroMemory(&bd, sizeof(bd));
@@ -268,12 +294,58 @@ HRESULT Application::InitIndexBuffer()
 	D3D11_SUBRESOURCE_DATA InitData1;
 	ZeroMemory(&InitData1, sizeof(InitData1));
     InitData1.pSysMem = pyramidIndices;
-    hr = _pd3dDevice->CreateBuffer(&bd, &InitData1, &_pPyramidIndexBuffer);
+    hr = _pd3dDevice->CreateBuffer(&bd1, &InitData1, &_pPyramidIndexBuffer);
+
+	//Create plane index buffer
+	D3D11_BUFFER_DESC bd2;
+	ZeroMemory(&bd2, sizeof(bd2));
+
+	bd2.Usage = D3D11_USAGE_DEFAULT;
+	bd2.ByteWidth = sizeof(WORD) * plane.size();
+	bd2.BindFlags = D3D11_BIND_INDEX_BUFFER;
+	bd2.CPUAccessFlags = 0;
+
+	D3D11_SUBRESOURCE_DATA InitData2;
+	ZeroMemory(&InitData2, sizeof(InitData2));
+	InitData2.pSysMem = planeIndices;
+	hr = _pd3dDevice->CreateBuffer(&bd2, &InitData2, &_pPlaneIndexBuffer);
 
     if (FAILED(hr))
         return hr;
 
 	return S_OK;
+}
+
+std::vector<XMFLOAT3> Application::CreatePlaneVertices(int sizeX, int sizeY) {
+	std::vector<XMFLOAT3> returnVec;
+
+	for (int y = 0; y < sizeY; y++) {
+		for (int x = 0; x < sizeX; x++) {
+			returnVec.push_back(XMFLOAT3(x, 0, y));
+		}
+	}
+
+	return returnVec;
+}
+
+std::vector<int> Application::CreatePlaneIndices(int sizeX, int sizeY) {
+	std::vector<int> returnVec;
+
+	for (int y = 0; y < sizeY - 1; y++) {
+		for (int x = 0; x < sizeX - 1; x++) {
+			//Triangle 1
+			returnVec.push_back((y)* sizeX + (x));
+			returnVec.push_back((y + 1) * sizeX + (x));
+			returnVec.push_back((y) * sizeX + (x + 1));
+
+			//Triangle 2
+			returnVec.push_back((y) * sizeX + (x + 1));
+			returnVec.push_back((y + 1) * sizeX + (x));
+			returnVec.push_back((y + 1) * sizeX + (x+1));
+		}
+	}
+
+	return returnVec;
 }
 
 HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
@@ -539,6 +611,7 @@ void Application::Update()
 	for (int i = 0; i < 100; i++) {
 		XMStoreFloat4x4(&_worldBelt[i], XMMatrixScaling(0.1f, 0.1f, 0.1f) * XMMatrixRotationY(-t * 3.0f) * XMMatrixTranslation((i/10.0f * random[i]) + 3.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * i/30.0f * random[i]) * XMMatrixTranslation(12.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * 1.5f));	//Apply transform to third world matrix
 	}
+	XMStoreFloat4x4(&_world4, XMMatrixTranslation(-10, -5, -35));
 }
 
 void Application::Draw()
@@ -604,6 +677,16 @@ void Application::Draw()
 		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
 		_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
 	}
+
+	UINT stride2 = sizeof(SimpleVertex);
+	UINT offset2 = 0;
+	_pImmediateContext->IASetVertexBuffers(0, 1, &_pPlaneVertexBuffer, &stride2, &offset2);
+	_pImmediateContext->IASetIndexBuffer(_pPlaneIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	world = XMLoadFloat4x4(&_world4);		//Convert XMFloat4x4 to XMMATRIX object
+	cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
+	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
+	_pImmediateContext->DrawIndexed((PLANE_WIDTH - 1) * (PLANE_HEIGHT - 1) * 6, 0, 0);	//Draw object
 
     //
     // Present our back buffer to our front buffer

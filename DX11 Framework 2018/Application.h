@@ -11,6 +11,9 @@
 
 using namespace DirectX;
 
+#define PLANE_WIDTH 20
+#define PLANE_HEIGHT 70
+
 struct SimpleVertex
 {
     XMFLOAT3 Pos;
@@ -43,8 +46,10 @@ private:
 	ID3D11Buffer*           _pCubeIndexBuffer;	
 	ID3D11Buffer*           _pPyramidVertexBuffer;
 	ID3D11Buffer*           _pPyramidIndexBuffer;
+	ID3D11Buffer*           _pPlaneVertexBuffer;
+	ID3D11Buffer*           _pPlaneIndexBuffer;
 	ID3D11Buffer*           _pConstantBuffer;
-	XMFLOAT4X4              _world, _world2, _world3;
+	XMFLOAT4X4              _world, _world2, _world3, _world4;
 	std::vector<XMFLOAT4X4>	_worldBelt;
 	XMFLOAT4X4              _view;
 	XMFLOAT4X4              _projection;
@@ -66,6 +71,8 @@ private:
 	HRESULT InitVertexBuffer();
 	HRESULT InitIndexBuffer();
 
+	std::vector<XMFLOAT3> CreatePlaneVertices(int sizeX, int sizeY);
+	std::vector<int> CreatePlaneIndices(int sizeX, int sizeY);
 	float RandomFloat(float a, float b) {
 		float random = ((float)rand()) / (float)RAND_MAX;
 		float diff = b - a;
