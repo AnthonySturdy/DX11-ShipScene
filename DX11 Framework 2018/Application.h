@@ -26,6 +26,7 @@ struct ConstantBuffer
 	XMMATRIX mView;
 	XMMATRIX mProjection;
 	float time;
+	bool wireframe;
 };
 
 class Application
