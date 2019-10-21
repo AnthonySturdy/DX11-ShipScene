@@ -138,7 +138,7 @@ HRESULT Application::InitShadersAndInputLayout()
     D3D11_INPUT_ELEMENT_DESC layout[] =
     {
         { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "COLOR", 0, DXGI_FORMAT_R32G32B32A32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
+        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
 	};
 
 	UINT numElements = ARRAYSIZE(layout);
@@ -164,29 +164,29 @@ HRESULT Application::InitVertexBuffer()
     // Create vertex buffers
     SimpleVertex cubeVertices[] =
     {
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT4(0, 0, 1, 1), },  
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT4(0, 1, 0, 1), },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(1, 0, 0, 1), },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(0, 1, 1, 1), },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT4(0, 0, 1, 1), },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT4(1, 0, 0, 1), },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0, 1, 0, 1), },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(0, 1, 1, 1), },
+		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
     };
 
 	SimpleVertex pyramidVertices[] =
 	{
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT4(0, 1, 0, 1), },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT4(0, 1, 0, 1), },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT4(0, 1, 0, 1), },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT4(0, 1, 0, 1), },
-		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT4(1, 0, 0, 1), },
+		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0, 1, 0), },
+		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0, 1, 0), },
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0, 1, 0), },
+		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0, 1, 0), },
+		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(1, 0, 0), },
 	};
 
 	std::vector<XMFLOAT3> plane = CreatePlaneVertices(PLANE_WIDTH, PLANE_HEIGHT);	//Generate vertex positions
 	SimpleVertex planeVertices[PLANE_WIDTH * PLANE_HEIGHT];	//Create vertex buffer
 	for (int i = 0; i < PLANE_WIDTH * PLANE_HEIGHT; i++) {	//Fill vertex buffer
-		planeVertices[i] = { plane[i], XMFLOAT4(1, 0.5, 0, 1) };
+		planeVertices[i] = { plane[i], XMFLOAT3(0, 1, 0) };
 	}
 
 	//Create cube vertex buffer
@@ -346,6 +346,10 @@ std::vector<int> Application::CreatePlaneIndices(int sizeX, int sizeY) {
 	}
 
 	return returnVec;
+}
+
+void Application::CalculateNormals(SimpleVertex* vertices, int numVertices) {
+
 }
 
 HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)

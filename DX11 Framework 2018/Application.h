@@ -17,7 +17,7 @@ using namespace DirectX;
 struct SimpleVertex
 {
     XMFLOAT3 Pos;
-    XMFLOAT4 Color;
+	XMFLOAT3 Normal;
 };
 
 struct ConstantBuffer
@@ -74,6 +74,7 @@ private:
 
 	std::vector<XMFLOAT3> CreatePlaneVertices(int sizeX, int sizeY);
 	std::vector<int> CreatePlaneIndices(int sizeX, int sizeY);
+	void CalculateNormals(SimpleVertex* vertices, int numVertices);
 	float RandomFloat(float a, float b) {
 		float random = ((float)rand()) / (float)RAND_MAX;
 		float diff = b - a;
