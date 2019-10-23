@@ -73,7 +73,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
 
     // Initialize the view matrix
-	XMVECTOR Eye = XMVectorSet(0.0f, 7.0f, -10.0f, 0.0f);
+	XMVECTOR Eye = XMVectorSet(eyePos.x, eyePos.y, eyePos.z, 0.0f);
 	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
 	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 
@@ -635,13 +635,22 @@ void Application::Draw()
     // Update variables
     //
     ConstantBuffer cb;
+	//Matrices
 	cb.mWorld = XMMatrixTranspose(world);
 	cb.mView = XMMatrixTranspose(view);
 	cb.mProjection = XMMatrixTranspose(projection);
-	cb.time = _time;
+	//Globals
+	cb.gTime = _time;
+	cb.mEyePosW = eyePos;
+	//Lighting / Materials
 	cb.mLightDirection = lightDirection;
 	cb.mDiffuseMaterial = diffuseMaterial;
 	cb.mDiffuseLight = diffuseLight;
+	cb.mAmbientMaterial = ambientMaterial;
+	cb.mAmbientLight = ambientLight;
+	cb.mSpecularMaterial = specularMaterial;
+	cb.mSpecularLight = specularLight;
+	cb.mSpecularPower = specularPower;
 
 	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
