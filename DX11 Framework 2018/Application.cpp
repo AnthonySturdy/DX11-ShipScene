@@ -164,23 +164,23 @@ HRESULT Application::InitVertexBuffer()
     // Create vertex buffers
     SimpleVertex cubeVertices[] =
     {
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0, 0, 0), },
+		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), },
+		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 1.0f, -1.0f), },
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), },
+		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, -1.0f, -1.0f), },
+		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, 1.0f), },
+		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f), },
+		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, -1.0f, 1.0f), },
+		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, 1.0f), },
     };
 
 	SimpleVertex pyramidVertices[] =
 	{
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(0, 1, 0), },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(0, 1, 0), },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(0, 1, 0), },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(0, 1, 0), },
-		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(1, 0, 0), },
+		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, 1.0f), },
+		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, -1.0f, -1.0f), },
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), },
+		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, -1.0f, 1.0f), },
+		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), },
 	};
 
 	std::vector<XMFLOAT3> plane = CreatePlaneVertices(PLANE_WIDTH, PLANE_HEIGHT);	//Generate vertex positions
@@ -639,7 +639,9 @@ void Application::Draw()
 	cb.mView = XMMatrixTranspose(view);
 	cb.mProjection = XMMatrixTranspose(projection);
 	cb.time = _time;
-	cb.wireframe = isAllWireframe;
+	cb.mLightDirection = lightDirection;
+	cb.mDiffuseMaterial = diffuseMaterial;
+	cb.mDiffuseLight = diffuseLight;
 
 	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 

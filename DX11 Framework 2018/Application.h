@@ -26,7 +26,9 @@ struct ConstantBuffer
 	XMMATRIX mView;
 	XMMATRIX mProjection;
 	float time;
-	bool wireframe;
+	XMFLOAT4 mDiffuseMaterial;
+	XMFLOAT4 mDiffuseLight;
+	XMFLOAT3 mLightDirection;
 };
 
 class Application
@@ -58,8 +60,11 @@ private:
 	ID3D11Texture2D*		_depthStencilBuffer;
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
-	float _time;
 
+	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)
+	XMFLOAT4 diffuseMaterial = XMFLOAT4(0.8f, 0.5f, 0.5f, 1.0f);	//Diffuse material properties (rgba)
+	XMFLOAT4 diffuseLight = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);		//Diffuse light colour (rgba)
+	float _time;
 	bool isAllWireframe = false;
 	std::vector<float> random;
 
