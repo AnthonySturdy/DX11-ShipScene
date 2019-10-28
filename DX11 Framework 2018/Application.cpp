@@ -88,6 +88,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 		random.push_back(RandomFloat(-1.0f, 1.0f));
 	}
 
+	
 
 	return S_OK;
 }
@@ -144,6 +145,27 @@ HRESULT Application::InitShadersAndInputLayout()
 
 	UINT numElements = ARRAYSIZE(layout);
 
+	//Load Texture
+	CreateDDSTextureFromFile(_pd3dDevice, L"Crate_COLOR.dds", nullptr, &_pTextureRV);
+	_pImmediateContext->PSSetShaderResources(0, 1, &_pTextureRV);
+
+	//Define sampler
+	ID3D11SamplerState* _pSamplerLinear = nullptr;
+
+	D3D11_SAMPLER_DESC sampDesc;
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+
+	_pd3dDevice->CreateSamplerState(&sampDesc, &_pSamplerLinear);
+
+	_pImmediateContext->PSSetSamplers(0, 1, &_pSamplerLinear);
+
     // Create the input layout
 	hr = _pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
                                         pVSBlob->GetBufferSize(), &_pVertexLayout);
@@ -177,17 +199,17 @@ HRESULT Application::InitVertexBuffer()
 
 	SimpleVertex pyramidVertices[] =
 	{
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, 1.0f), },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, -1.0f, -1.0f), },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, -1.0f, 1.0f), },
-		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), },
+		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(1.0f, 1.0f),},
+		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f),},
+		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f),},
+		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f),},
+		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.5f, 0.5f)},
 	};
 
 	std::vector<XMFLOAT3> plane = CreatePlaneVertices(PLANE_WIDTH, PLANE_HEIGHT);	//Generate vertex positions
 	SimpleVertex planeVertices[PLANE_WIDTH * PLANE_HEIGHT];	//Create vertex buffer
 	for (int i = 0; i < PLANE_WIDTH * PLANE_HEIGHT; i++) {	//Fill vertex buffer
-		planeVertices[i] = { plane[i], XMFLOAT3(0, 1, 0) };
+		planeVertices[i] = { plane[i], XMFLOAT3(0, 1, 0), XMFLOAT2(i%2, i%2) };
 	}
 
 	//Create cube vertex buffer
@@ -374,7 +396,7 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 
     // Create window
     _hInst = hInstance;
-    RECT rc = {0, 0, 640, 480};
+    RECT rc = {0, 0, 1280, 720};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
     _hWnd = CreateWindow(L"TutorialWindowClass", L"DX11 Framework", WS_OVERLAPPEDWINDOW,
                          CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,

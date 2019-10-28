@@ -8,6 +8,7 @@
 #include <vector>
 #include <time.h>
 #include "resource.h"
+#include "DDSTextureLoader.h"
 
 using namespace DirectX;
 
@@ -80,6 +81,8 @@ private:
 	XMFLOAT4 specularMaterial = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);	//Specular material properties (rgba)
 	XMFLOAT4 specularLight = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);		//Specular light colour (rgba)
 	float specularPower = 10.0f;									//Specular power
+
+	ID3D11ShaderResourceView* _pTextureRV = nullptr;
 
 	float _time;
 	bool isAllWireframe = false;

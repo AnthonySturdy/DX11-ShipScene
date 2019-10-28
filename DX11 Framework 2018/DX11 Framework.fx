@@ -7,6 +7,9 @@
 //--------------------------------------------------------------------------------------
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
+Texture2D txDiffuse : register(t0);
+SamplerState samLinear : register(s0);
+
 cbuffer ConstantBuffer : register( b0 )
 {
 	matrix World;
@@ -25,19 +28,22 @@ cbuffer ConstantBuffer : register( b0 )
 }
 
 //--------------------------------------------------------------------------------------
-struct VS_OUTPUT
+struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-    float3 Norm : NORMAL;
-	float3 PosW : POSITION;
+    float3 Norm : NORMAL0;
+	float3 PosW : POSITION0;
+	float2 Tex : TEXCOORD0;
 };
 
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-VS_OUTPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL )
+PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOORD0 )
 {
-    VS_OUTPUT output = (VS_OUTPUT)0;
+    PS_INPUT output = (PS_INPUT)0;
+
+	output.Tex = Tex;
 
     output.Pos = mul( Pos, World );
 
@@ -61,7 +67,7 @@ VS_OUTPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL )
 //--------------------------------------------------------------------------------------
 // Pixel Shader - Specular lighting
 //--------------------------------------------------------------------------------------
-float4 PS(VS_OUTPUT input) : SV_Target
+float4 PS(PS_INPUT input) : SV_Target
 {
 	float3 normalW = normalize(input.Norm);
 
@@ -80,8 +86,11 @@ float4 PS(VS_OUTPUT input) : SV_Target
 	//Compute Specular colour
 	float3 specular = specularAmount * (SpecularMtrl * SpecularLight).rbg;
 
+	//Texture colour
+	float4 texCol = txDiffuse.Sample(samLinear, input.Tex);
+
 	float4 outCol;
-	outCol.rgb = ambient + diffuse + specular;
+	outCol.rgb = texCol + ambient + diffuse + specular;
 	outCol.a = DiffuseMtrl.a;
 
 	return outCol;
