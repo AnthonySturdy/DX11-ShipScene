@@ -9,37 +9,13 @@
 #include <time.h>
 #include "resource.h"
 #include "DDSTextureLoader.h"
+#include "OBJLoader.h"
+#include "Structures.h"
 
 using namespace DirectX;
 
 #define PLANE_WIDTH 20
 #define PLANE_HEIGHT 70
-
-struct SimpleVertex
-{
-    XMFLOAT3 Pos;
-	XMFLOAT3 Normal;
-	XMFLOAT2 TexC;
-};
-
-struct ConstantBuffer
-{
-	//Matrices
-	XMMATRIX mWorld;
-	XMMATRIX mView;
-	XMMATRIX mProjection;
-	//Lighting and materials
-	XMFLOAT4 mDiffuseMaterial;
-	XMFLOAT4 mDiffuseLight;
-	XMFLOAT3 mLightDirection;
-	float gTime;//This is put here because it pads the float3
-	XMFLOAT4 mAmbientMaterial;
-	XMFLOAT4 mAmbientLight;
-	XMFLOAT4 mSpecularMaterial;
-	XMFLOAT4 mSpecularLight;	
-	float mSpecularPower;		
-	XMFLOAT3 mEyePosW;
-};
 
 class Application
 {
@@ -72,6 +48,8 @@ private:
 	ID3D11RasterizerState*	_solidRenderState;
 
 	XMFLOAT3 eyePos = XMFLOAT3(10.0f, 7.0f, -6.0f);
+
+	MeshData objMeshData;
 
 	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)
 	XMFLOAT4 diffuseMaterial = XMFLOAT4(0.8f, 0.5f, 0.5f, 1.0f);	//Diffuse material properties (rgba)

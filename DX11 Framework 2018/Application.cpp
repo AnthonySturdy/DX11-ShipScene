@@ -88,7 +88,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 		random.push_back(RandomFloat(-1.0f, 1.0f));
 	}
 
-	
+	objMeshData = OBJLoader::Load("donut.obj", _pd3dDevice);	//If model is made in blender, add another parameter 'false'
 
 	return S_OK;
 }
@@ -689,10 +689,10 @@ void Application::Draw()
 
 	UINT stride = sizeof(SimpleVertex);
 	UINT offset = 0;
-	_pImmediateContext->IASetVertexBuffers(0, 1, &_pPyramidVertexBuffer, &stride, &offset);
-	_pImmediateContext->IASetIndexBuffer(_pPyramidIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	_pImmediateContext->IASetVertexBuffers(0, 1, &objMeshData.VertexBuffer, &objMeshData.VBStride, &objMeshData.VBOffset);
+	_pImmediateContext->IASetIndexBuffer(objMeshData.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-	_pImmediateContext->DrawIndexed(18, 0, 0);    
+	_pImmediateContext->DrawIndexed(objMeshData.IndexCount, 0, 0);    
 
 	// Set vertex buffer
 	UINT stride1 = sizeof(SimpleVertex);
