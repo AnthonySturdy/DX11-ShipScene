@@ -11,6 +11,7 @@
 #include "DDSTextureLoader.h"
 #include "OBJLoader.h"
 #include "Structures.h"
+#include "GameObject.h"
 
 using namespace DirectX;
 
@@ -49,7 +50,7 @@ private:
 
 	XMFLOAT3 eyePos = XMFLOAT3(10.0f, 7.0f, -6.0f);
 
-	MeshData objMeshData;
+	GameObject* testGO = nullptr;
 
 	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)
 	XMFLOAT4 diffuseMaterial = XMFLOAT4(0.8f, 0.5f, 0.5f, 1.0f);	//Diffuse material properties (rgba)

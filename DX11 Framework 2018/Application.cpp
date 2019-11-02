@@ -88,7 +88,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 		random.push_back(RandomFloat(-1.0f, 1.0f));
 	}
 
-	objMeshData = OBJLoader::Load("donut.obj", _pd3dDevice);	//If model is made in blender, add another parameter 'false'
+	testGO = new GameObject(_pd3dDevice, "G06_hotdog.obj", L"hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f));
 
 	return S_OK;
 }
@@ -632,6 +632,8 @@ void Application::Update()
     //
     // Animate the cube
     //
+	testGO->SetRotation(vector3(0, testGO->GetRotation()->x + (t/2), 0));
+
 	XMStoreFloat4x4(&_world, XMMatrixRotationY(t));
 	XMStoreFloat4x4(&_world2, XMMatrixScaling(0.4f, 0.4f, 0.4f) * XMMatrixRotationY(-t * 5.0f) * XMMatrixTranslation(4.0f, 0.0f, 0.0f) * XMMatrixRotationY(-t * 0.4f));	//Apply transform to second world matrix
 	XMStoreFloat4x4(&_world3, XMMatrixScaling(0.6f, 0.6f, 0.6f) * XMMatrixRotationY(-t * 3.0f) * XMMatrixTranslation(12.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * 1.5f));	//Apply transform to third world matrix
@@ -687,14 +689,21 @@ void Application::Draw()
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
 
-	UINT stride = sizeof(SimpleVertex);
-	UINT offset = 0;
-	_pImmediateContext->IASetVertexBuffers(0, 1, &objMeshData.VertexBuffer, &objMeshData.VBStride, &objMeshData.VBOffset);
-	_pImmediateContext->IASetIndexBuffer(objMeshData.IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+	//Render GameObject
+	world = XMLoadFloat4x4(testGO->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
+	cb.mWorld = XMMatrixTranspose(world);					//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
+	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
 
-	_pImmediateContext->DrawIndexed(objMeshData.IndexCount, 0, 0);    
+	_pImmediateContext->PSSetShaderResources(0, 1, testGO->GetTexture());
+
+	_pImmediateContext->IASetVertexBuffers(0, 1, &testGO->GetMesh()->VertexBuffer, &testGO->GetMesh()->VBStride, &testGO->GetMesh()->VBOffset);
+	_pImmediateContext->IASetIndexBuffer(testGO->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	_pImmediateContext->DrawIndexed(testGO->GetMesh()->IndexCount, 0, 0);    
 
 	// Set vertex buffer
+	_pImmediateContext->PSSetShaderResources(0, 1, &_pTextureRV);
+
 	UINT stride1 = sizeof(SimpleVertex);
 	UINT offset1 = 0;
 	_pImmediateContext->IASetVertexBuffers(0, 1, &_pCubeVertexBuffer, &stride1, &offset1);
