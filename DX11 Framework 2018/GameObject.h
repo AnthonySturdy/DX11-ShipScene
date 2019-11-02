@@ -8,7 +8,7 @@
 
 
 class GameObject {
-private:
+protected:
 	MeshData mesh;
 	vector3 position;
 	vector3 rotation;
@@ -18,7 +18,7 @@ private:
 	XMFLOAT4X4 worldMatrix;
 
 public:
-	GameObject(ID3D11Device* device, std::string modelDir, std::wstring textureDir, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material());
+	GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material());
 	~GameObject();
 
 	MeshData* GetMesh();

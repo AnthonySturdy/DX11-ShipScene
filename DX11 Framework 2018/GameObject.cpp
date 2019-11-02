@@ -1,11 +1,12 @@
 #include "GameObject.h"
 
-GameObject::GameObject(ID3D11Device* device, std::string modelDir, std::wstring textureDir, vector3 initPos, vector3 initRot, vector3 initScale, Material _material) {
+GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos, vector3 initRot, vector3 initScale, Material _material) {
 	//Load model into MeshData
-	mesh = OBJLoader::Load(const_cast<char*>(modelDir.c_str()), device);	//Takes char* not const char* so did a const_cast
+	if(modelDir != "")	//modelDir is set to "" when object is a plane, so we don't need to load a mesh
+		mesh = OBJLoader::Load(const_cast<char*>(modelDir.c_str()), _device);	//Takes char* not const char* so did a const_cast
 
 	//Load Texture
-	CreateDDSTextureFromFile(device, textureDir.c_str(), nullptr, &texture);
+	CreateDDSTextureFromFile(_device, textureDir.c_str(), nullptr, &texture);
 
 	//Set intitial positions
 	position = initPos;
