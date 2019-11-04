@@ -32,7 +32,7 @@ struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
     float3 Norm : NORMAL0;
-	float3 PosW : POSITION0;
+	float3 eyePos : POSITION0;
 	float2 Tex : TEXCOORD0;
 };
 
@@ -50,7 +50,7 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 	//Compute vector from the vertex to eye position
 	//output.Pos is currently the position in world space
 	float3 toEye = normalize(EyePosW - output.Pos.xyz);
-	output.PosW = toEye;
+	output.eyePos = toEye;
 
     output.Pos = mul( output.Pos, View );
     output.Pos = mul( output.Pos, Projection );
@@ -75,7 +75,7 @@ float4 PS(PS_INPUT input) : SV_Target
 	float3 r = reflect(-LightVecW, normalW);
 
 	//Determine how much specular light makes it to eye
-	float specularAmount = pow(max(dot(r, input.PosW), 0.0f), SpecularPower);
+	float specularAmount = pow(max(dot(r, input.eyePos), 0.0f), SpecularPower);
 
 	//Compute colour using diffuse lighting only
 	float diffuseAmount = max(dot(LightVecW, normalW), 0.0f);

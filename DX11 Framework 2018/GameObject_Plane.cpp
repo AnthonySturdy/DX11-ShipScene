@@ -22,8 +22,8 @@ std::vector<SimpleVertex> GameObject_Plane::CreatePlaneVertices() {
 	return returnVec;
 }
 
-std::vector<int> GameObject_Plane::CreatePlaneIndices() {
-	std::vector<int> returnVec;
+std::vector<short> GameObject_Plane::CreatePlaneIndices() {
+	std::vector<short> returnVec;
 
 	for (int y = 0; y < depth - 1; y++) {
 		for (int x = 0; x < width - 1; x++) {
@@ -43,13 +43,21 @@ std::vector<int> GameObject_Plane::CreatePlaneIndices() {
 }
 
 void GameObject_Plane::CreateMesh(ID3D11Device* device) {
-	//Generate Vertices and Indices
-	std::vector<SimpleVertex> vertices = CreatePlaneVertices();	//Generate vertex positions
-	std::vector<int> indices = CreatePlaneIndices();
+	//Generate Vertices and Indices then change them to arrays
+	vertices = CreatePlaneVertices();	//Generate vertex positions
+	SimpleVertex* verticesArray = new SimpleVertex[vertices.size()];
+	for (unsigned int i = 0; i < vertices.size(); ++i) {
+		verticesArray[i].Pos = vertices[i].Pos;
+		verticesArray[i].Normal = vertices[i].Normal;
+		verticesArray[i].TexC = vertices[i].TexC;
+	}
 
-	//Create mesh object
-	mesh = MeshData();
-	
+	indices = CreatePlaneIndices();
+	unsigned short* indicesArray = new unsigned short[indices.size()];
+	for (unsigned int i = 0; i < indices.size(); ++i) {
+		indicesArray[i] = indices[i];
+	}
+
 	//Create Vertex Buffer then assign to mesh
 	D3D11_BUFFER_DESC vbd;
 	ZeroMemory(&vbd, sizeof(vbd));
@@ -60,10 +68,13 @@ void GameObject_Plane::CreateMesh(ID3D11Device* device) {
 
 	D3D11_SUBRESOURCE_DATA InitData;
 	ZeroMemory(&InitData, sizeof(InitData));
-	InitData.pSysMem = &vertices[0];
+	InitData.pSysMem = verticesArray;
 
 	device->CreateBuffer(&vbd, &InitData, &vertexBuffer);
+	
 	mesh.VertexBuffer = vertexBuffer;
+	mesh.VBOffset = 0;
+	mesh.VBStride = sizeof(SimpleVertex);
 
 	//Create Index Buffer then assign to mesh
 	D3D11_BUFFER_DESC ibd;
@@ -76,14 +87,13 @@ void GameObject_Plane::CreateMesh(ID3D11Device* device) {
 
 	D3D11_SUBRESOURCE_DATA InitData2;
 	ZeroMemory(&InitData2, sizeof(InitData2));
-	InitData2.pSysMem = &indices[0];
+	InitData2.pSysMem = indicesArray;
 	device->CreateBuffer(&ibd, &InitData2, &indexBuffer);;
+	
 	mesh.IndexBuffer = indexBuffer;
-
-	//Fill rest of mesh data
 	mesh.IndexCount = indices.size();
-	mesh.VBOffset = 0;
-	mesh.VBStride = sizeof(SimpleVertex);
+
+	//Delete now that it's on GPU
+	delete[] indicesArray;
+	delete[] verticesArray;
 }
-
-
