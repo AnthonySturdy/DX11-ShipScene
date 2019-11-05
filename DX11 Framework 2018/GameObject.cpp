@@ -12,6 +12,8 @@ GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring
 	position = initPos;
 	rotation = initRot;
 	scale = initScale;
+	if (initScale.x == 0 && initScale.y == 0 && initScale.z == 0)
+		scale = vector3(1, 1, 1);
 
 	//Set material
 	material = _material;

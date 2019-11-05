@@ -91,7 +91,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	//Create gameobjects
 	testGO.push_back(new GameObject(_pd3dDevice, "G06_hotdog.obj", L"hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
 	testGO.push_back(new GameObject(_pd3dDevice, "G06_hotdog.obj", L"hotdog.dds", vector3(0.0f, 0.5f, -4.0f), vector3(), vector3(1.0f, 1.0f, 1.0f)));
-	testGO.push_back(new GameObject_Plane(_pd3dDevice, L"Crate_COLOR.dds", 100, 100, vector3(0.0f, 0.0f, 0.0f), vector3(0.0f, 0.0f, 0.0f), vector3(1.0f, 1.0f, 1.0f)));
+	testGO.push_back(new GameObject_Plane(_pd3dDevice, L"Crate_COLOR.dds", 100, 100, vector3(-50.0f, 0.0f, 50.0f), vector3(0.0f, 0.0f, 0.0f)));
 
 	return S_OK;
 }

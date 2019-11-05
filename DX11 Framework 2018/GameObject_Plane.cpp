@@ -1,8 +1,6 @@
 #include "GameObject_Plane.h"
 
 GameObject_Plane::GameObject_Plane(ID3D11Device* _device, std::wstring textureDir, int planeWidth, int planeDepth, vector3 initPos, vector3 initRot, vector3 initScale, Material _material) : GameObject(_device, "", textureDir, initPos, initRot, initScale, _material) {
-	//device = _device;
-	
 	width = planeWidth;
 	depth = planeDepth;
 
