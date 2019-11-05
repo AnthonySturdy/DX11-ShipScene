@@ -10,7 +10,7 @@ private:
 	int width, depth;
 
 	std::vector<SimpleVertex> vertices;
-	std::vector<short> indices;
+	std::vector<unsigned short> indices;
 	ID3D11Buffer* vertexBuffer;
 	ID3D11Buffer* indexBuffer;
 
@@ -20,7 +20,7 @@ public:
 	GameObject_Plane(ID3D11Device* _device, std::wstring textureDir, int planeWidth, int planeDepth, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material());
 	
 	std::vector<SimpleVertex> CreatePlaneVertices();
-	std::vector<short> CreatePlaneIndices();
+	std::vector<unsigned short> CreatePlaneIndices();
 	void CreateMesh(ID3D11Device* device);
 };
 

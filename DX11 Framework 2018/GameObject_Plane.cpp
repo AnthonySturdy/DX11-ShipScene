@@ -12,8 +12,8 @@ GameObject_Plane::GameObject_Plane(ID3D11Device* _device, std::wstring textureDi
 std::vector<SimpleVertex> GameObject_Plane::CreatePlaneVertices() {
 	std::vector<SimpleVertex> returnVec;
 
-	for (int y = 0; y < depth; y++) {
-		for (int x = 0; x < width; x++) {
+	for (unsigned int y = 0; y < depth; y++) {
+		for (unsigned int x = 0; x < width; x++) {
 			SimpleVertex vert = { XMFLOAT3(x, 0, y), XMFLOAT3(0, 1, 0), XMFLOAT2(x, y) };
 			returnVec.push_back(vert);
 		}
@@ -22,11 +22,11 @@ std::vector<SimpleVertex> GameObject_Plane::CreatePlaneVertices() {
 	return returnVec;
 }
 
-std::vector<short> GameObject_Plane::CreatePlaneIndices() {
-	std::vector<short> returnVec;
+std::vector<unsigned short> GameObject_Plane::CreatePlaneIndices() {
+	std::vector<unsigned short> returnVec;
 
-	for (int y = 0; y < depth - 1; y++) {
-		for (int x = 0; x < width - 1; x++) {
+	for (unsigned int y = 0; y < depth - 1; y++) {
+		for (unsigned int x = 0; x < width - 1; x++) {
 			//Triangle 1
 			returnVec.push_back((y)* width + (x));
 			returnVec.push_back((y + 1) * width + (x));
@@ -90,10 +90,9 @@ void GameObject_Plane::CreateMesh(ID3D11Device* device) {
 	InitData2.pSysMem = indicesArray;
 	device->CreateBuffer(&ibd, &InitData2, &indexBuffer);;
 	
-	mesh.IndexBuffer = indexBuffer;
 	mesh.IndexCount = indices.size();
+	mesh.IndexBuffer = indexBuffer;
 
-	//Delete now that it's on GPU
 	delete[] indicesArray;
 	delete[] verticesArray;
 }
