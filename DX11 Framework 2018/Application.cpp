@@ -36,8 +36,6 @@ Application::Application()
 	_pVertexShader = nullptr;
 	_pPixelShader = nullptr;
 	_pVertexLayout = nullptr;
-	_pCubeVertexBuffer = nullptr;
-	_pCubeIndexBuffer = nullptr;
 	_pConstantBuffer = nullptr;
 	_depthStencilView = nullptr;
 	_depthStencilBuffer = nullptr;
@@ -82,16 +80,10 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     // Initialize the projection matrix
 	XMStoreFloat4x4(&_projection, XMMatrixPerspectiveFovLH(XM_PIDIV2, _WindowWidth / (FLOAT) _WindowHeight, 0.01f, 100.0f));
 
-	//Reserve belt world matrices
-	for (int i = 0; i < 100; i++) {
-		_worldBelt.push_back(XMFLOAT4X4());
-		random.push_back(RandomFloat(-1.0f, 1.0f));
-	}
-
 	//Create gameobjects
-	testGO.push_back(new GameObject(_pd3dDevice, "G06_hotdog.obj", L"hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
-	testGO.push_back(new GameObject(_pd3dDevice, "G06_hotdog.obj", L"hotdog.dds", vector3(0.0f, 0.5f, -4.0f), vector3(), vector3(1.0f, 1.0f, 1.0f)));
-	testGO.push_back(new GameObject_Plane(_pd3dDevice, L"Crate_COLOR.dds", 100, 100, vector3(-50.0f, 0.0f, 50.0f), vector3(0.0f, 0.0f, 0.0f)));
+	testGO.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
+	testGO.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	testGO.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/Crate_COLOR.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f)));
 
 	return S_OK;
 }
@@ -148,10 +140,6 @@ HRESULT Application::InitShadersAndInputLayout()
 
 	UINT numElements = ARRAYSIZE(layout);
 
-	//Load Texture
-	CreateDDSTextureFromFile(_pd3dDevice, L"Crate_COLOR.dds", nullptr, &_pTextureRV);
-	_pImmediateContext->PSSetShaderResources(0, 1, &_pTextureRV);
-
 	//Define sampler
 	ID3D11SamplerState* _pSamplerLinear = nullptr;
 
@@ -183,198 +171,6 @@ HRESULT Application::InitShadersAndInputLayout()
 	return hr;
 }
 
-HRESULT Application::InitVertexBuffer()
-{
-	HRESULT hr;
-
-    // Create vertex buffers
-    SimpleVertex cubeVertices[] =
-    {
-		{ XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT3(-1.0f, 1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f), },
-		{ XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT3(1.0f, 1.0f, -1.0f), XMFLOAT2(1.0f, 1.0f), },
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 1.0f), },
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(0.0f, 1.0f), },
-		{ XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT3(-1.0f, 1.0f, 1.0f), XMFLOAT2(1.0f, 0.0f), },
-		{ XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 1.0f, 1.0f), XMFLOAT2(1.0f, 1.0f), },
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 0.0f), },
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f), },
-    };
-
-	SimpleVertex pyramidVertices[] =
-	{
-		{ XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT3(1.0f, -1.0f, 1.0f), XMFLOAT2(1.0f, 1.0f),},
-		{ XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT3(1.0f, -1.0f, -1.0f), XMFLOAT2(1.0f, 0.0f),},
-		{ XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT3(-1.0f, -1.0f, -1.0f), XMFLOAT2(0.0f, 0.0f),},
-		{ XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT3(-1.0f, -1.0f, 1.0f), XMFLOAT2(0.0f, 1.0f),},
-		{ XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT2(0.5f, 0.5f)},
-	};
-
-	std::vector<SimpleVertex> plane = CreatePlaneVertices(PLANE_WIDTH, PLANE_HEIGHT);	//Generate vertex positions
-	SimpleVertex planeVertices[PLANE_WIDTH * PLANE_HEIGHT];	//Create vertex buffer
-	for (int i = 0; i < PLANE_WIDTH * PLANE_HEIGHT; i++) {	//Fill vertex buffer
-		planeVertices[i] = plane[i];
-	}
-
-	//Create cube vertex buffer
-    D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(SimpleVertex) * 8;
-    bd.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-
-    D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory(&InitData, sizeof(InitData));
-    InitData.pSysMem = cubeVertices;
-
-	hr = _pd3dDevice->CreateBuffer(&bd, &InitData, &_pCubeVertexBuffer);
-
-	//Create pyramid vertex buffer
-	D3D11_BUFFER_DESC bd1;
-	ZeroMemory(&bd1, sizeof(bd1));
-	bd1.Usage = D3D11_USAGE_DEFAULT;
-	bd1.ByteWidth = sizeof(SimpleVertex) * 5;
-	bd1.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd1.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA InitData1;
-	ZeroMemory(&InitData1, sizeof(InitData1));
-	InitData1.pSysMem = pyramidVertices;
-
-    hr = _pd3dDevice->CreateBuffer(&bd1, &InitData1, &_pPyramidVertexBuffer);
-
-	//Create plane vertex buffer
-	D3D11_BUFFER_DESC bd2;
-	ZeroMemory(&bd2, sizeof(bd2));
-	bd2.Usage = D3D11_USAGE_DEFAULT;
-	bd2.ByteWidth = sizeof(SimpleVertex) * plane.size();
-	bd2.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-	bd2.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA InitData2;
-	ZeroMemory(&InitData2, sizeof(InitData2));
-	InitData2.pSysMem = planeVertices;
-
-	hr = _pd3dDevice->CreateBuffer(&bd2, &InitData2, &_pPlaneVertexBuffer);
-
-    if (FAILED(hr))
-        return hr;
-
-	return S_OK;
-}
-
-HRESULT Application::InitIndexBuffer()
-{
-	HRESULT hr;
-
-    // Create index buffers
-    WORD cubeIndices[] =
-    {
-		0, 1, 2, 2, 1, 3,	//1
-		4, 0, 6, 6, 0, 2,	//2
-		7, 5, 6, 6, 5, 4,	//3
-		3, 1, 7, 7, 1, 5,	//4
-		4, 5, 0, 0, 5, 1,	//5
-		3, 7, 2, 2, 7, 6,	//6
-    };
-
-	WORD pyramidIndices[] =
-	{
-		2, 4, 1,
-		1, 4, 0,
-		0, 4, 3,
-		3, 4, 2,
-		3, 2, 1,
-		1, 0, 3
-	};
-
-	std::vector<int> plane = CreatePlaneIndices(PLANE_WIDTH, PLANE_HEIGHT);
-	WORD planeIndices[(PLANE_WIDTH - 1) * (PLANE_HEIGHT - 1) * 6];	//Create vertex buffer
-	for (int i = 0; i < (PLANE_WIDTH - 1) * (PLANE_HEIGHT - 1) * 6; i++) {	//Loop (sizex-1 * sizey-1 * amountOfIndicesPerSquareWhichIsSix) times
-		planeIndices[i] = plane[i];
-	}
-
-	//Create cube index buffer
-	D3D11_BUFFER_DESC bd;
-	ZeroMemory(&bd, sizeof(bd));
-
-    bd.Usage = D3D11_USAGE_DEFAULT;
-    bd.ByteWidth = sizeof(WORD) * 36;     
-    bd.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA InitData;
-	ZeroMemory(&InitData, sizeof(InitData));
-    InitData.pSysMem = cubeIndices;
-    hr = _pd3dDevice->CreateBuffer(&bd, &InitData, &_pCubeIndexBuffer);
-
-	//Create pyramid index buffer
-	D3D11_BUFFER_DESC bd1;
-	ZeroMemory(&bd1, sizeof(bd1));
-
-    bd1.Usage = D3D11_USAGE_DEFAULT;
-    bd1.ByteWidth = sizeof(WORD) * 18;     
-    bd1.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd1.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA InitData1;
-	ZeroMemory(&InitData1, sizeof(InitData1));
-    InitData1.pSysMem = pyramidIndices;
-    hr = _pd3dDevice->CreateBuffer(&bd1, &InitData1, &_pPyramidIndexBuffer);
-
-	//Create plane index buffer
-	D3D11_BUFFER_DESC bd2;
-	ZeroMemory(&bd2, sizeof(bd2));
-
-	bd2.Usage = D3D11_USAGE_DEFAULT;
-	bd2.ByteWidth = sizeof(WORD) * plane.size();
-	bd2.BindFlags = D3D11_BIND_INDEX_BUFFER;
-	bd2.CPUAccessFlags = 0;
-
-	D3D11_SUBRESOURCE_DATA InitData2;
-	ZeroMemory(&InitData2, sizeof(InitData2));
-	InitData2.pSysMem = planeIndices;
-	hr = _pd3dDevice->CreateBuffer(&bd2, &InitData2, &_pPlaneIndexBuffer);
-
-    if (FAILED(hr))
-        return hr;
-
-	return S_OK;
-}
-
-std::vector<SimpleVertex> Application::CreatePlaneVertices(int sizeX, int sizeY) {
-	std::vector<SimpleVertex> returnVec;
-
-	for (int y = 0; y < sizeY; y++) {
-		for (int x = 0; x < sizeX; x++) {
-			SimpleVertex vert = {XMFLOAT3(x, 0, y), XMFLOAT3(0, 1, 0), XMFLOAT2(x, y)};
-			returnVec.push_back(vert);
-		}
-	}
-
-	return returnVec;
-}
-
-std::vector<int> Application::CreatePlaneIndices(int sizeX, int sizeY) {
-	std::vector<int> returnVec;
-
-	for (int y = 0; y < sizeY - 1; y++) {
-		for (int x = 0; x < sizeX - 1; x++) {
-			//Triangle 1
-			returnVec.push_back((y)* sizeX + (x));
-			returnVec.push_back((y + 1) * sizeX + (x));
-			returnVec.push_back((y) * sizeX + (x + 1));
-
-			//Triangle 2
-			returnVec.push_back((y) * sizeX + (x + 1));
-			returnVec.push_back((y + 1) * sizeX + (x));
-			returnVec.push_back((y + 1) * sizeX + (x+1));
-		}
-	}
-
-	return returnVec;
-}
-
 HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
     // Register class
@@ -398,7 +194,7 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
     _hInst = hInstance;
     RECT rc = {0, 0, 1280, 720};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-    _hWnd = CreateWindow(L"TutorialWindowClass", L"DX11 Framework", WS_OVERLAPPEDWINDOW,
+    _hWnd = CreateWindow(L"TutorialWindowClass", L"DX11 Scene // Anthony Sturdy", WS_OVERLAPPEDWINDOW,
                          CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
                          nullptr);
     if (!_hWnd)
@@ -511,7 +307,6 @@ HRESULT Application::InitDevice()
 
 	//Set up depth/stencil buffer
 	D3D11_TEXTURE2D_DESC depthStencilDesc;
-
 	depthStencilDesc.Width = _WindowWidth;
 	depthStencilDesc.Height = _WindowHeight;
 	depthStencilDesc.MipLevels = 1;
@@ -540,18 +335,6 @@ HRESULT Application::InitDevice()
     _pImmediateContext->RSSetViewports(1, &vp);
 
 	InitShadersAndInputLayout();
-
-	InitVertexBuffer();
-
-    // Set vertex buffer
-    UINT stride = sizeof(SimpleVertex);
-    UINT offset = 0;
-    _pImmediateContext->IASetVertexBuffers(0, 1, &_pCubeVertexBuffer, &stride, &offset);
-
-	InitIndexBuffer();
-
-    // Set index buffer
-    _pImmediateContext->IASetIndexBuffer(_pCubeIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
     // Set primitive topology
     _pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -589,8 +372,6 @@ void Application::Cleanup()
 {
     if (_pImmediateContext) _pImmediateContext->ClearState();
     if (_pConstantBuffer) _pConstantBuffer->Release();
-    if (_pCubeVertexBuffer) _pCubeVertexBuffer->Release();
-    if (_pCubeIndexBuffer) _pCubeIndexBuffer->Release();
     if (_pVertexLayout) _pVertexLayout->Release();
     if (_pVertexShader) _pVertexShader->Release();
     if (_pPixelShader) _pPixelShader->Release();
@@ -629,18 +410,8 @@ void Application::Update()
 
 	_time = t;
 
-    //
-    // Animate the cube
-    //
-	testGO[0]->SetRotation(vector3(0, testGO[0]->GetRotation()->x + (t/2), 0));
-
-	XMStoreFloat4x4(&_world, XMMatrixRotationY(t));
-	XMStoreFloat4x4(&_world2, XMMatrixScaling(0.4f, 0.4f, 0.4f) * XMMatrixRotationY(-t * 5.0f) * XMMatrixTranslation(4.0f, 0.0f, 0.0f) * XMMatrixRotationY(-t * 0.4f));	//Apply transform to second world matrix
-	XMStoreFloat4x4(&_world3, XMMatrixScaling(0.6f, 0.6f, 0.6f) * XMMatrixRotationY(-t * 3.0f) * XMMatrixTranslation(12.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * 1.5f));	//Apply transform to third world matrix
-	for (int i = 0; i < 100; i++) {
-		XMStoreFloat4x4(&_worldBelt[i], XMMatrixScaling(0.1f, 0.1f, 0.1f) * XMMatrixRotationY(-t * 3.0f) * XMMatrixTranslation((i/10.0f * random[i]) + 3.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * i/30.0f * random[i]) * XMMatrixTranslation(12.0f, 0.0f, 0.0f) * XMMatrixRotationY(t * 1.5f));	//Apply transform to third world matrix
-	}
-	XMStoreFloat4x4(&_world4, XMMatrixTranslation(-10, -5, -35));
+    // Animate test GameObject
+	testGO[0]->SetRotation(vector3(testGO[0]->GetRotation()->x, t / 2, testGO[0]->GetRotation()->z));
 }
 
 void Application::Draw()
@@ -679,17 +450,16 @@ void Application::Draw()
 
 	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
-    //
-    // Renders a triangle
-    //
+    // Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
 
+	//Set shader and constant buffer
 	_pImmediateContext->VSSetShader(_pVertexShader, nullptr, 0);
 	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
     _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
 	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
 
-	//Render GameObject
+	//Render GameObjects
 	for (int i = 0; i < testGO.size(); i++) {
 		world = XMLoadFloat4x4(testGO[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
 		cb.mWorld = XMMatrixTranspose(world);					//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
@@ -703,46 +473,8 @@ void Application::Draw()
 		_pImmediateContext->DrawIndexed(testGO[i]->GetMesh()->IndexCount, 0, 0);
 	}
 
-	// Set vertex buffer
-	_pImmediateContext->PSSetShaderResources(0, 1, &_pTextureRV);
-
-	UINT stride1 = sizeof(SimpleVertex);
-	UINT offset1 = 0;
-	_pImmediateContext->IASetVertexBuffers(0, 1, &_pCubeVertexBuffer, &stride1, &offset1);
-	_pImmediateContext->IASetIndexBuffer(_pCubeIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-	world = XMLoadFloat4x4(&_world2);		//Convert XMFloat4x4 to XMMATRIX object
-	cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
-	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
-	_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
-
-	world = XMLoadFloat4x4(&_world3);		//Convert XMFloat4x4 to XMMATRIX object
-	cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
-	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
-	_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
-	
-	for (int i = 0; i < 100; i++) {
-		world = XMLoadFloat4x4(&_worldBelt[i]);		//Convert XMFloat4x4 to XMMATRIX object
-		cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
-		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
-		_pImmediateContext->DrawIndexed(36, 0, 0);	//Draw object
-	}
-
-	/*
-
-	UINT stride2 = sizeof(SimpleVertex);
-	UINT offset2 = 0;
-	_pImmediateContext->IASetVertexBuffers(0, 1, &_pPlaneVertexBuffer, &stride2, &offset2);
-	_pImmediateContext->IASetIndexBuffer(_pPlaneIndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-	world = XMLoadFloat4x4(&_world4);		//Convert XMFloat4x4 to XMMATRIX object
-	cb.mWorld = XMMatrixTranspose(world);	//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
-	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
-	_pImmediateContext->DrawIndexed((PLANE_WIDTH - 1) * (PLANE_HEIGHT - 1) * 6, 0, 0);	//Draw object
-	*/
     //
     // Present our back buffer to our front buffer
     //
     _pSwapChain->Present(0, 0);
-
 }
