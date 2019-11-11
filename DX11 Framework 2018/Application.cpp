@@ -67,18 +67,19 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
 	srand(time(NULL));
 
+	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
+	cameras.push_back(new Camera(XMFLOAT3(0.0f, 10.0f, 0.1f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
+	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 1.0f, -5.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
+	currentCamera = cameras[0];
+
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
 
-    // Initialize the view matrix
-	XMVECTOR Eye = XMVectorSet(eyePos.x, eyePos.y, eyePos.z, 0.0f);
-	XMVECTOR At = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
-	XMVECTOR Up = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-
-	XMStoreFloat4x4(&_view, XMMatrixLookAtLH(Eye, At, Up));
+	//Initialise the view matrix
+	XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
 
     // Initialize the projection matrix
-	XMStoreFloat4x4(&_projection, XMMatrixPerspectiveFovLH(XM_PIDIV2, _WindowWidth / (FLOAT) _WindowHeight, 0.01f, 100.0f));
+	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
 	//Create gameobjects
 	testGO.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
@@ -408,6 +409,25 @@ void Application::Update()
 		isAllWireframe = !isAllWireframe;
 	}
 
+	if (GetAsyncKeyState(VK_NUMPAD1)) {
+		currentCamera = cameras[0];
+
+		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
+		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
+	} 
+	if (GetAsyncKeyState(VK_NUMPAD2)) {
+		currentCamera = cameras[1];
+
+		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
+		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
+	} 
+	if (GetAsyncKeyState(VK_NUMPAD3)) {
+		currentCamera = cameras[2];
+
+		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
+		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
+	}
+
 	_time = t;
 
     // Animate test GameObject
@@ -437,7 +457,7 @@ void Application::Draw()
 	cb.mProjection = XMMatrixTranspose(projection);
 	//Globals
 	cb.gTime = _time;
-	cb.mEyePosW = eyePos;
+	cb.mEyePosW = currentCamera->GetEye();
 	//Lighting / Materials
 	cb.mLightDirection = lightDirection;
 	cb.mDiffuseMaterial = diffuseMaterial;

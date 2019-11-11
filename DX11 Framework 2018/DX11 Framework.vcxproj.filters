@@ -18,6 +18,7 @@
     <ClInclude Include="Structures.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObject_Plane.h" />
+    <ClInclude Include="Camera.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -27,6 +28,7 @@
     <ClCompile Include="OBJLoader.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObject_Plane.cpp" />
+    <ClCompile Include="Camera.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">

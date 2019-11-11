@@ -13,6 +13,7 @@
 #include "Structures.h"
 #include "GameObject.h"
 #include "GameObject_Plane.h"
+#include "Camera.h"
 
 using namespace DirectX;
 
@@ -42,7 +43,8 @@ private:
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
 
-	XMFLOAT3 eyePos = XMFLOAT3(-5.0f, 6.0f, 5.0f);
+	std::vector<Camera*> cameras;
+	Camera* currentCamera = nullptr;
 
 	std::vector<GameObject*> testGO;
 
