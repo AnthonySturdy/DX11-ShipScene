@@ -82,9 +82,9 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
 	//Create gameobjects
-	testGO.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
-	testGO.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
-	testGO.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/Crate_COLOR.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f)));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/Crate_COLOR.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f)));
 
 	return S_OK;
 }
@@ -431,7 +431,7 @@ void Application::Update()
 	_time = t;
 
     // Animate test GameObject
-	testGO[0]->SetRotation(vector3(testGO[0]->GetRotation()->x, t / 2, testGO[0]->GetRotation()->z));
+	gameObjects[0]->SetRotation(vector3(gameObjects[0]->GetRotation()->x, t / 2, gameObjects[0]->GetRotation()->z));
 }
 
 void Application::Draw()
@@ -480,17 +480,17 @@ void Application::Draw()
 	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
 
 	//Render GameObjects
-	for (int i = 0; i < testGO.size(); i++) {
-		world = XMLoadFloat4x4(testGO[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
+	for (int i = 0; i < gameObjects.size(); i++) {
+		world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
 		cb.mWorld = XMMatrixTranspose(world);					//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
 		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
 
-		_pImmediateContext->PSSetShaderResources(0, 1, testGO[i]->GetTexture());
+		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetTexture());
 
-		_pImmediateContext->IASetVertexBuffers(0, 1, &testGO[i]->GetMesh()->VertexBuffer, &testGO[i]->GetMesh()->VBStride, &testGO[i]->GetMesh()->VBOffset);
-		_pImmediateContext->IASetIndexBuffer(testGO[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);
+		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
-		_pImmediateContext->DrawIndexed(testGO[i]->GetMesh()->IndexCount, 0, 0);
+		_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
 	}
 
     //
