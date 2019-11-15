@@ -27,7 +27,6 @@ cbuffer ConstantBuffer : register( b0 )
 	float3 EyePosW;	//Cam position in world space
 }
 
-//--------------------------------------------------------------------------------------
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
@@ -76,7 +75,6 @@ float4 PS(PS_INPUT input) : SV_Target
 
 	//Determine how much specular light makes it to eye
 	float specularAmount = pow(max(dot(r, input.eyePos), 0.0f), SpecularPower);
-
 	//Compute colour using diffuse lighting only
 	float diffuseAmount = max(dot(LightVecW, normalW), 0.0f);
 	//Compute diffuse colour
