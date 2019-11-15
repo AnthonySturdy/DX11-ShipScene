@@ -409,19 +409,19 @@ void Application::Update()
 		isAllWireframe = !isAllWireframe;
 	}
 
-	if (GetAsyncKeyState(VK_NUMPAD1)) {
+	if (GetAsyncKeyState(0x31)) {
 		currentCamera = cameras[0];
 
 		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
 		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 	} 
-	if (GetAsyncKeyState(VK_NUMPAD2)) {
+	if (GetAsyncKeyState(0x32)) {
 		currentCamera = cameras[1];
 
 		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
 		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 	} 
-	if (GetAsyncKeyState(VK_NUMPAD3)) {
+	if (GetAsyncKeyState(0x33)) {
 		currentCamera = cameras[2];
 
 		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
