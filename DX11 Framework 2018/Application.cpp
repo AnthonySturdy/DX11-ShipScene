@@ -72,7 +72,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
 	//Initialise Shaders
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Normal Shader.fx"));
-	//shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
 
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
@@ -84,8 +84,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
 	//Create gameobjects
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f), Material(), ShaderType::NO_LIGHTING));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f), Material(), ShaderType::NO_LIGHTING));
 	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/Crate_COLOR.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f)));
 
 	return S_OK;
