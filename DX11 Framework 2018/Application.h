@@ -14,6 +14,7 @@
 #include "GameObject.h"
 #include "GameObject_Plane.h"
 #include "Camera.h"
+#include "Shader.h"
 
 using namespace DirectX;
 
@@ -31,9 +32,6 @@ private:
 	ID3D11DeviceContext*    _pImmediateContext;
 	IDXGISwapChain*         _pSwapChain;
 	ID3D11RenderTargetView* _pRenderTargetView;
-	ID3D11VertexShader*     _pVertexShader;
-	ID3D11PixelShader*      _pPixelShader;
-	ID3D11InputLayout*      _pVertexLayout;
 	ID3D11Buffer*           _pConstantBuffer;
 	XMFLOAT4X4              _world;
 	XMFLOAT4X4              _view;
@@ -42,10 +40,9 @@ private:
 	ID3D11Texture2D*		_depthStencilBuffer;
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
-
-	std::vector<Camera*> cameras;
 	Camera* currentCamera = nullptr;
-
+	std::vector<Camera*> cameras;
+	std::vector<Shader*> shaders;
 	std::vector<GameObject*> gameObjects;
 
 	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)
@@ -64,8 +61,6 @@ private:
 	HRESULT InitWindow(HINSTANCE hInstance, int nCmdShow);
 	HRESULT InitDevice();
 	void Cleanup();
-	HRESULT CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut);
-	HRESULT InitShadersAndInputLayout();
 
 	UINT _WindowHeight;
 	UINT _WindowWidth;

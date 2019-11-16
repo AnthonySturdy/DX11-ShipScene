@@ -373,7 +373,6 @@
       </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
-  <ItemGroup />
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
     <ClCompile Include="Camera.cpp" />
@@ -382,10 +381,11 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObject_Plane.cpp" />
     <ClCompile Include="OBJLoader.cpp" />
+    <ClCompile Include="Shader.cpp" />
     <ClCompile Include="vector3.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="DX11 Framework.fx" />
+    <None Include="Normal Shader.fx" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Application.h" />
@@ -395,13 +395,15 @@
     <ClInclude Include="GameObject_Plane.h" />
     <ClInclude Include="OBJLoader.h" />
     <CLInclude Include="resource.h" />
+    <ClInclude Include="Shader.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="vector3.h" />
     <ResourceCompile Include="DX11 Framework.rc" />
   </ItemGroup>
   <ItemGroup>
-  </ItemGroup>
-  <ItemGroup>
+    <None Include="No Light Shader.fx">
+      <FileType>Document</FileType>
+    </None>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets" />

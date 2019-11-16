@@ -33,9 +33,6 @@ Application::Application()
 	_pImmediateContext = nullptr;
 	_pSwapChain = nullptr;
 	_pRenderTargetView = nullptr;
-	_pVertexShader = nullptr;
-	_pPixelShader = nullptr;
-	_pVertexLayout = nullptr;
 	_pConstantBuffer = nullptr;
 	_depthStencilView = nullptr;
 	_depthStencilBuffer = nullptr;
@@ -67,10 +64,15 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
 	srand(time(NULL));
 
+	//Create cameras
 	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
 	cameras.push_back(new Camera(XMFLOAT3(0.0f, 10.0f, 0.1f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
 	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 1.0f, -5.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
 	currentCamera = cameras[0];
+
+	//Initialise Shaders
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Normal Shader.fx"));
+	//shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
 
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
@@ -89,88 +91,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	return S_OK;
 }
 
-HRESULT Application::InitShadersAndInputLayout()
-{
-	HRESULT hr;
 
-    // Compile the vertex shader
-    ID3DBlob* pVSBlob = nullptr;
-    hr = CompileShaderFromFile(L"DX11 Framework.fx", "VS", "vs_4_0", &pVSBlob);
-
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-                   L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
-        return hr;
-    }
-
-	// Create the vertex shader
-	hr = _pd3dDevice->CreateVertexShader(pVSBlob->GetBufferPointer(), pVSBlob->GetBufferSize(), nullptr, &_pVertexShader);
-
-	if (FAILED(hr))
-	{	
-		pVSBlob->Release();
-        return hr;
-	}
-
-	// Compile the pixel shader
-	ID3DBlob* pPSBlob = nullptr;
-    hr = CompileShaderFromFile(L"DX11 Framework.fx", "PS", "ps_4_0", &pPSBlob);
-
-    if (FAILED(hr))
-    {
-        MessageBox(nullptr,
-                   L"The FX file cannot be compiled.  Please run this executable from the directory that contains the FX file.", L"Error", MB_OK);
-        return hr;
-    }
-
-	// Create the pixel shader
-	hr = _pd3dDevice->CreatePixelShader(pPSBlob->GetBufferPointer(), pPSBlob->GetBufferSize(), nullptr, &_pPixelShader);
-	pPSBlob->Release();
-
-    if (FAILED(hr))
-        return hr;
-
-    // Define the input layout
-    D3D11_INPUT_ELEMENT_DESC layout[] =
-    {
-        { "POSITION", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 0, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "NORMAL", 0, DXGI_FORMAT_R32G32B32_FLOAT, 0, 12, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-        { "TEXCOORD", 0, DXGI_FORMAT_R32G32_FLOAT, 0, 24, D3D11_INPUT_PER_VERTEX_DATA, 0 },
-	};
-
-	UINT numElements = ARRAYSIZE(layout);
-
-	//Define sampler
-	ID3D11SamplerState* _pSamplerLinear = nullptr;
-
-	D3D11_SAMPLER_DESC sampDesc;
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-
-	_pd3dDevice->CreateSamplerState(&sampDesc, &_pSamplerLinear);
-
-	_pImmediateContext->PSSetSamplers(0, 1, &_pSamplerLinear);
-
-    // Create the input layout
-	hr = _pd3dDevice->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
-                                        pVSBlob->GetBufferSize(), &_pVertexLayout);
-	pVSBlob->Release();
-
-	if (FAILED(hr))
-        return hr;
-
-    // Set the input layout
-    _pImmediateContext->IASetInputLayout(_pVertexLayout);
-
-	return hr;
-}
 
 HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 {
@@ -202,38 +123,6 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
 		return E_FAIL;
 
     ShowWindow(_hWnd, nCmdShow);
-
-    return S_OK;
-}
-
-HRESULT Application::CompileShaderFromFile(WCHAR* szFileName, LPCSTR szEntryPoint, LPCSTR szShaderModel, ID3DBlob** ppBlobOut)
-{
-    HRESULT hr = S_OK;
-
-    DWORD dwShaderFlags = D3DCOMPILE_ENABLE_STRICTNESS;
-#if defined(DEBUG) || defined(_DEBUG)
-    // Set the D3DCOMPILE_DEBUG flag to embed debug information in the shaders.
-    // Setting this flag improves the shader debugging experience, but still allows 
-    // the shaders to be optimized and to run exactly the way they will run in 
-    // the release configuration of this program.
-    dwShaderFlags |= D3DCOMPILE_DEBUG;
-#endif
-
-    ID3DBlob* pErrorBlob;
-    hr = D3DCompileFromFile(szFileName, nullptr, nullptr, szEntryPoint, szShaderModel, 
-        dwShaderFlags, 0, ppBlobOut, &pErrorBlob);
-
-    if (FAILED(hr))
-    {
-        if (pErrorBlob != nullptr)
-            OutputDebugStringA((char*)pErrorBlob->GetBufferPointer());
-
-        if (pErrorBlob) pErrorBlob->Release();
-
-        return hr;
-    }
-
-    if (pErrorBlob) pErrorBlob->Release();
 
     return S_OK;
 }
@@ -335,8 +224,6 @@ HRESULT Application::InitDevice()
     vp.TopLeftY = 0;
     _pImmediateContext->RSSetViewports(1, &vp);
 
-	InitShadersAndInputLayout();
-
     // Set primitive topology
     _pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
@@ -373,9 +260,6 @@ void Application::Cleanup()
 {
     if (_pImmediateContext) _pImmediateContext->ClearState();
     if (_pConstantBuffer) _pConstantBuffer->Release();
-    if (_pVertexLayout) _pVertexLayout->Release();
-    if (_pVertexShader) _pVertexShader->Release();
-    if (_pPixelShader) _pPixelShader->Release();
     if (_pRenderTargetView) _pRenderTargetView->Release();
     if (_pSwapChain) _pSwapChain->Release();
     if (_pImmediateContext) _pImmediateContext->Release();
@@ -443,52 +327,54 @@ void Application::Draw()
     _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
 	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	XMMATRIX world = XMLoadFloat4x4(&_world);
 	XMMATRIX view = XMLoadFloat4x4(&_view);
 	XMMATRIX projection = XMLoadFloat4x4(&_projection);
-    //
-    // Update variables
-    //
-    ConstantBuffer cb;
-	//Matrices
-	cb.mWorld = XMMatrixTranspose(world);
-	cb.mView = XMMatrixTranspose(view);
-	cb.mProjection = XMMatrixTranspose(projection);
-	//Other
-	cb.gTime = _time;
-	cb.mEyePosW = currentCamera->GetEye();
-	//Lighting / Materials
-	cb.mLightDirection = lightDirection;
-	cb.mDiffuseMaterial = diffuseMaterial;
-	cb.mDiffuseLight = diffuseLight;
-	cb.mAmbientMaterial = ambientMaterial;
-	cb.mAmbientLight = ambientLight;
-	cb.mSpecularMaterial = specularMaterial;
-	cb.mSpecularLight = specularLight;
-	cb.mSpecularPower = specularPower;
-
-	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
     // Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
 
-	//Set shader and constant buffer
-	_pImmediateContext->VSSetShader(_pVertexShader, nullptr, 0);
-	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
-    _pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
-	_pImmediateContext->PSSetShader(_pPixelShader, nullptr, 0);
-
 	//Render GameObjects
 	for (int i = 0; i < gameObjects.size(); i++) {
-		world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
-		cb.mWorld = XMMatrixTranspose(world);					//Transpose matrix (Swap rows and columns) and store it in constant buffer struct
-		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);		//Copies constant buffer struct to Constant buffer on GPU
+		//Set position
+		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
 
+		//Set constant buffer
+		ConstantBuffer cb;
+		
+		cb.mWorld = XMMatrixTranspose(world);
+		cb.mView = XMMatrixTranspose(view);
+		cb.mProjection = XMMatrixTranspose(projection);
+		
+		cb.gTime = _time;
+		cb.mEyePosW = currentCamera->GetEye();
+		
+		Material* m = gameObjects[i]->GetMaterial();
+		cb.mLightDirection = m->lightDirection;
+		cb.mDiffuseMaterial = m->diffuseMaterial;
+		cb.mDiffuseLight = m->diffuseLight;
+		cb.mAmbientMaterial = m->ambientMaterial;
+		cb.mAmbientLight = m->ambientLight;
+		cb.mSpecularMaterial = m->specularMaterial;
+		cb.mSpecularLight = m->specularLight;
+		cb.mSpecularPower = m->specularPower;
+
+		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+		//Set shader
+		Shader* s = shaders[gameObjects[i]->GetShaderType()];
+		_pImmediateContext->VSSetShader(s->GetVertexShader(), nullptr, 0);
+		_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+		_pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
+		_pImmediateContext->PSSetShader(s->GetPixelShader(), nullptr, 0);
+
+		//Set texture
 		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetTexture());
 
+		//Set vertex and index buffer
 		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);
 		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
+		//Draw
 		_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
 	}
 

@@ -16,9 +16,10 @@ protected:
 	Material material;
 	ID3D11ShaderResourceView* texture = nullptr;
 	XMFLOAT4X4 worldMatrix;
+	ShaderType shaderType;
 
 public:
-	GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material());
+	GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material(), ShaderType _shaderType = ShaderType::NORMAL);
 	~GameObject();
 
 	MeshData* GetMesh();
@@ -28,6 +29,7 @@ public:
 	XMFLOAT4X4* GetWorldMatrix();
 	Material* GetMaterial();
 	ID3D11ShaderResourceView** GetTexture();
+	ShaderType GetShaderType();
 
 	void SetPosition(vector3 newPos);
 	void SetRotation(vector3 newRot);

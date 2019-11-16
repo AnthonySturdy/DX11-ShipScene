@@ -19,6 +19,7 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObject_Plane.h" />
     <ClInclude Include="Camera.h" />
+    <ClInclude Include="Shader.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -29,6 +30,7 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObject_Plane.cpp" />
     <ClCompile Include="Camera.cpp" />
+    <ClCompile Include="Shader.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
@@ -36,13 +38,16 @@
     </CLInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="DX11 Framework.fx">
-      <Filter>Shaders</Filter>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
     <ResourceCompile Include="DX11 Framework.rc">
       <Filter>Resource Files</Filter>
     </ResourceCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Normal Shader.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="No Light Shader.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

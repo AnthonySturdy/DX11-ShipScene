@@ -54,3 +54,8 @@ struct ConstantBuffer
 	float mSpecularPower;
 	XMFLOAT3 mEyePosW;
 };
+
+enum ShaderType {
+	NORMAL = 0,
+	NO_LIGHTING = 1
+};
