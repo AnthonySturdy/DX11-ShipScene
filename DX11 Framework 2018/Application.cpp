@@ -84,9 +84,9 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
 	//Create gameobjects
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f), Material(), ShaderType::NO_LIGHTING));
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f), Material(), ShaderType::NO_LIGHTING));
-	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/Crate_COLOR.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f)));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/Crate_COLOR.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(), Material(), ShaderType::NO_LIGHTING));
 
 	return S_OK;
 }
@@ -359,6 +359,7 @@ void Application::Draw()
 		cb.mSpecularPower = m->specularPower;
 
 		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+		
 
 		//Set shader
 		Shader* s = shaders[gameObjects[i]->GetShaderType()];
@@ -368,7 +369,10 @@ void Application::Draw()
 		_pImmediateContext->PSSetShader(s->GetPixelShader(), nullptr, 0);
 
 		//Set texture
+		ID3D11SamplerState* samp = s->GetSampler();
+		_pImmediateContext->PSSetSamplers(0, 1, &samp);
 		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetTexture());
+		
 
 		//Set vertex and index buffer
 		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);

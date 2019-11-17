@@ -62,7 +62,7 @@ HRESULT Shader::InitShadersAndInputLayout(WCHAR* fileDir) {
 	UINT numElements = ARRAYSIZE(layout);
 
 	//Define sampler
-	ID3D11SamplerState* _pSamplerLinear = nullptr;
+	samplerLinear = nullptr;
 
 	D3D11_SAMPLER_DESC sampDesc;
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -74,9 +74,9 @@ HRESULT Shader::InitShadersAndInputLayout(WCHAR* fileDir) {
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 
-	device->CreateSamplerState(&sampDesc, &_pSamplerLinear);
+	device->CreateSamplerState(&sampDesc, &samplerLinear);
 
-	context->PSSetSamplers(0, 1, &_pSamplerLinear);
+	context->PSSetSamplers(0, 1, &samplerLinear);
 
 	// Create the input layout
 	hr = device->CreateInputLayout(layout, numElements, pVSBlob->GetBufferPointer(),
@@ -128,4 +128,9 @@ ID3D11VertexShader* Shader::GetVertexShader() {
 
 ID3D11PixelShader* Shader::GetPixelShader() {
 	return pixelShader;
+}
+
+ID3D11SamplerState* Shader::GetSampler()
+{
+	return samplerLinear;
 }

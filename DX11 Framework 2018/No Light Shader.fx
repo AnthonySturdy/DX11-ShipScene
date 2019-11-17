@@ -36,7 +36,7 @@ struct PS_INPUT
 //--------------------------------------------------------------------------------------
 // Vertex Shader
 //--------------------------------------------------------------------------------------
-PS_INPUT VS( float4 Pos : POSITION, float2 Tex : TEXCOORD0 )
+PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOORD0 )
 {
     PS_INPUT output = (PS_INPUT)0;
 
