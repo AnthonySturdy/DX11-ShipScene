@@ -86,8 +86,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	//Create gameobjects
 	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
 	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
-	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/prototype.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(), Material(), ShaderType::NO_LIGHTING));
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/prototype.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(), Material()));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(0.0f, 0.0f, 0.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
 
 	return S_OK;
 }
