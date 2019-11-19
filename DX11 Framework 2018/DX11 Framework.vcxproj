@@ -381,6 +381,8 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="GameObject_Plane.cpp" />
     <ClCompile Include="OBJLoader.cpp" />
+    <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="SceneGraphObject.cpp" />
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="vector3.cpp" />
   </ItemGroup>
@@ -395,6 +397,8 @@
     <ClInclude Include="GameObject_Plane.h" />
     <ClInclude Include="OBJLoader.h" />
     <CLInclude Include="resource.h" />
+    <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="SceneGraphObject.h" />
     <ClInclude Include="Shader.h" />
     <ClInclude Include="Structures.h" />
     <ClInclude Include="vector3.h" />

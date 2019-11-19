@@ -20,6 +20,8 @@ GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring
 
 	//Set shader type
 	shaderType = _shaderType;
+
+	UpdateWorldMatrix();
 }
 
 GameObject::~GameObject() {
@@ -44,11 +46,6 @@ vector3* GameObject::GetScale() {
 }
 
 XMFLOAT4X4* GameObject::GetWorldMatrix() {
-	//Create world matrix from Position, Rotation and Scale values
-	XMStoreFloat4x4(&worldMatrix, XMMatrixScaling(scale.x, scale.y, scale.z) * 
-									XMMatrixRotationX(rotation.x) * XMMatrixRotationY(rotation.y) * XMMatrixRotationZ(rotation.z) * 
-									XMMatrixTranslation(position.x, position.y, position.z));
-
 	return &worldMatrix;
 }
 
@@ -74,4 +71,15 @@ void GameObject::SetRotation(vector3 newRot) {
 
 void GameObject::SetScale(vector3 newScale) {
 	scale = newScale;
+}
+
+void GameObject::SetWorldMatrix(XMFLOAT4X4 mtx) {
+	worldMatrix = mtx;
+}
+
+void GameObject::UpdateWorldMatrix() {
+	//Create world matrix from Position, Rotation and Scale values
+	XMStoreFloat4x4(&worldMatrix, XMMatrixScaling(scale.x, scale.y, scale.z) *
+		XMMatrixRotationX(rotation.x) * XMMatrixRotationY(rotation.y) * XMMatrixRotationZ(rotation.z) *
+		XMMatrixTranslation(position.x, position.y, position.z));
 }

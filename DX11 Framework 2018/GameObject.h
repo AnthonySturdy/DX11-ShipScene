@@ -34,4 +34,6 @@ public:
 	void SetPosition(vector3 newPos);
 	void SetRotation(vector3 newRot);
 	void SetScale(vector3 newScale);
+	void UpdateWorldMatrix();
+	void SetWorldMatrix(XMFLOAT4X4 mtx);
 };

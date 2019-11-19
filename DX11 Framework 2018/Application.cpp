@@ -84,10 +84,13 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
 	//Create gameobjects
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 0.0f, 3.0f), vector3(), vector3(0.1f, 0.1f, 0.1f)));
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(4.0f, 0.0f, -2.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	//gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 1.5f, -2.0f), vector3(), vector3(0.02f, 0.02f, 0.02f)));
+	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(20.0f, 0.0f, -2.0f)));
 	gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/prototype.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(), Material()));
-	gameObjects.push_back(new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(0.0f, 0.0f, 0.0f), vector3(), vector3(2.0f, 2.0f, 2.0f)));
+	//gameObjects.push_back(new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(0.0f, 0.0f, 0.0f)));
+
+	hierarchy = new SceneGraph(new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(0.0f, 0.0f, 0.0f)));
+	hierarchy->GetBase()->children.push_back(new SceneGraphObject(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 1.5f, -2.0f), vector3(), vector3(0.02f, 0.02f, 0.02f)), hierarchy->GetBase()));
 
 	return S_OK;
 }
@@ -316,7 +319,11 @@ void Application::Update()
 	_time = t;
 
     // Animate test GameObject
-	gameObjects[0]->SetRotation(vector3(gameObjects[0]->GetRotation()->x, t / 2, gameObjects[0]->GetRotation()->z));
+	//gameObjects[1]->SetRotation(vector3(gameObjects[0]->GetRotation()->x, t / 2, gameObjects[0]->GetRotation()->z));
+
+	hierarchy->GetBase()->gameObject->SetRotation(vector3(0, t / 2, 0));
+	hierarchy->GetBase()->children[0]->gameObject->SetRotation(vector3(t, t / 2, 0));
+	hierarchy->GetBase()->UpdateTransformation();
 }
 
 void Application::Draw()
@@ -335,8 +342,10 @@ void Application::Draw()
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
 
 	//Render GameObjects
+	/*
 	for (int i = 0; i < gameObjects.size(); i++) {
 		//Set position
+		gameObjects[i]->UpdateWorldMatrix();
 		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
 
 		//Set constant buffer
@@ -381,7 +390,103 @@ void Application::Draw()
 
 		//Draw
 		_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
-	}
+	}*/
+
+	//TODO: REMOVE HARD CODE RENDER AND LOOP THROUGH SCENE GRAPH
+
+	GameObject* go1 = hierarchy->GetBase()->gameObject;
+	GameObject* go2 = hierarchy->GetBase()->children[0]->gameObject;
+
+	//Set position
+	XMMATRIX world = XMLoadFloat4x4(go1->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
+
+	//Set constant buffer
+	ConstantBuffer cb;
+
+	cb.mWorld = XMMatrixTranspose(world);
+	cb.mView = XMMatrixTranspose(view);
+	cb.mProjection = XMMatrixTranspose(projection);
+
+	cb.gTime = _time;
+	cb.mEyePosW = currentCamera->GetEye();
+
+	Material* m = go1->GetMaterial();
+	cb.mLightDirection = m->lightDirection;
+	cb.mDiffuseMaterial = m->diffuseMaterial;
+	cb.mDiffuseLight = m->diffuseLight;
+	cb.mAmbientMaterial = m->ambientMaterial;
+	cb.mAmbientLight = m->ambientLight;
+	cb.mSpecularMaterial = m->specularMaterial;
+	cb.mSpecularLight = m->specularLight;
+	cb.mSpecularPower = m->specularPower;
+
+	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+
+	//Set shader
+	Shader* s = shaders[go1->GetShaderType()];
+	_pImmediateContext->VSSetShader(s->GetVertexShader(), nullptr, 0);
+	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+	_pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
+	_pImmediateContext->PSSetShader(s->GetPixelShader(), nullptr, 0);
+
+	//Set texture
+	ID3D11SamplerState* samp = s->GetSampler();
+	_pImmediateContext->PSSetSamplers(0, 1, &samp);
+	_pImmediateContext->PSSetShaderResources(0, 1, go1->GetTexture());
+
+
+	//Set vertex and index buffer
+	_pImmediateContext->IASetVertexBuffers(0, 1, &go1->GetMesh()->VertexBuffer, &go1->GetMesh()->VBStride, &go1->GetMesh()->VBOffset);
+	_pImmediateContext->IASetIndexBuffer(go1->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	//Draw
+	_pImmediateContext->DrawIndexed(go1->GetMesh()->IndexCount, 0, 0);
+
+	//Set position
+	world = XMLoadFloat4x4(go2->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
+
+	//Set constant buffer
+
+	cb.mWorld = XMMatrixTranspose(world);
+	cb.mView = XMMatrixTranspose(view);
+	cb.mProjection = XMMatrixTranspose(projection);
+
+	cb.gTime = _time;
+	cb.mEyePosW = currentCamera->GetEye();
+
+	m = go2->GetMaterial();
+	cb.mLightDirection = m->lightDirection;
+	cb.mDiffuseMaterial = m->diffuseMaterial;
+	cb.mDiffuseLight = m->diffuseLight;
+	cb.mAmbientMaterial = m->ambientMaterial;
+	cb.mAmbientLight = m->ambientLight;
+	cb.mSpecularMaterial = m->specularMaterial;
+	cb.mSpecularLight = m->specularLight;
+	cb.mSpecularPower = m->specularPower;
+
+	_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+
+	//Set shader
+	s = shaders[go2->GetShaderType()];
+	_pImmediateContext->VSSetShader(s->GetVertexShader(), nullptr, 0);
+	_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+	_pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
+	_pImmediateContext->PSSetShader(s->GetPixelShader(), nullptr, 0);
+
+	//Set texture
+	samp = s->GetSampler();
+	_pImmediateContext->PSSetSamplers(0, 1, &samp);
+	_pImmediateContext->PSSetShaderResources(0, 1, go2->GetTexture());
+
+
+	//Set vertex and index buffer
+	_pImmediateContext->IASetVertexBuffers(0, 1, &go2->GetMesh()->VertexBuffer, &go2->GetMesh()->VBStride, &go2->GetMesh()->VBOffset);
+	_pImmediateContext->IASetIndexBuffer(go2->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+	//Draw
+	_pImmediateContext->DrawIndexed(go2->GetMesh()->IndexCount, 0, 0);
 
     //
     // Present our back buffer to our front buffer

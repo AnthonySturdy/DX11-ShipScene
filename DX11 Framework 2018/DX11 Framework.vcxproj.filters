@@ -20,6 +20,8 @@
     <ClInclude Include="GameObject_Plane.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Shader.h" />
+    <ClInclude Include="SceneGraph.h" />
+    <ClInclude Include="SceneGraphObject.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -31,6 +33,8 @@
     <ClCompile Include="GameObject_Plane.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Shader.cpp" />
+    <ClCompile Include="SceneGraph.cpp" />
+    <ClCompile Include="SceneGraphObject.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">
