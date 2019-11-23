@@ -6,7 +6,9 @@ GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring
 		mesh = OBJLoader::Load(const_cast<char*>(modelDir.c_str()), _device);	//Takes char* not const char* so did a const_cast
 
 	//Load Texture
-	CreateDDSTextureFromFile(_device, textureDir.c_str(), nullptr, &texture);
+	CreateDDSTextureFromFile(_device, textureDir.c_str(), nullptr, &diffuseTex);
+	CreateDDSTextureFromFile(_device, AddSuffixBeforeExtension(textureDir, L"_normal", L".dds").c_str(), nullptr, &normalTex);
+	CreateDDSTextureFromFile(_device, AddSuffixBeforeExtension(textureDir, L"_specular", L".dds").c_str(), nullptr, &specularTex);
 
 	//Set intitial positions
 	position = initPos;
@@ -25,8 +27,18 @@ GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring
 }
 
 GameObject::~GameObject() {
-	delete texture;
-	texture = nullptr;
+	delete diffuseTex;
+	diffuseTex = nullptr;
+	delete normalTex;
+	normalTex = nullptr;
+	delete specularTex;
+	specularTex = nullptr;
+}
+
+std::wstring GameObject::AddSuffixBeforeExtension(std::wstring str, std::wstring suffix, std::wstring extension) {
+	std::wstring returnStr;
+	returnStr = str.erase(str.length() - extension.length(), extension.length()) + suffix + extension;
+	return returnStr;
 }
 
 MeshData* GameObject::GetMesh() {
@@ -53,8 +65,16 @@ Material* GameObject::GetMaterial() {
 	return &material;
 }
 
-ID3D11ShaderResourceView** GameObject::GetTexture() {
-	return &texture;
+ID3D11ShaderResourceView** GameObject::GetDiffuseTexture() {
+	return &diffuseTex;
+}
+
+ID3D11ShaderResourceView** GameObject::GetNormalTexture() {
+	return &normalTex;
+}
+
+ID3D11ShaderResourceView** GameObject::GetSpecularTexture() {
+	return &specularTex;
 }
 
 ShaderType GameObject::GetShaderType() {

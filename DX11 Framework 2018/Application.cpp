@@ -66,7 +66,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
 	//Create cameras
 	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
-	cameras.push_back(new Camera(XMFLOAT3(0.0f, 10.0f, 0.1f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
+	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 1.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
 	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 1.0f, -5.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
 	currentCamera = cameras[0];
 
@@ -83,19 +83,13 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     // Initialize the projection matrix
 	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
-	//Create gameobjects
-	//gameObjects.push_back(new GameObject(_pd3dDevice, "Models/dog.obj", L"Textures/dog.dds", vector3(0.0f, 1.5f, -2.0f), vector3(), vector3(0.02f, 0.02f, 0.02f)));
-	//gameObjects.push_back(new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(20.0f, 0.0f, -2.0f)));
-	//gameObjects.push_back(new GameObject_Plane(_pd3dDevice, L"Textures/prototype.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-15.0f, 0.0f, -15.0f), vector3(0.0f, 0.0f, 0.0f), vector3(), Material()));
-	//gameObjects.push_back(new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(0.0f, 0.0f, 0.0f)));
-
-	hierarchy = new SceneGraph(new GameObject_Plane(_pd3dDevice, L"Textures/prototype.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-50.0f, 0.0f, -50.0f)));
+	hierarchy = new SceneGraph(new GameObject_Plane(_pd3dDevice, L"Textures/tiles.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-50.0f, 0.0f, -50.0f)));
 	hierarchy->GetBase()->children.push_back(new SceneGraphObject(
-											new GameObject(_pd3dDevice, "Models/PirateShip.obj", L"Textures/pirateship.dds", vector3(50.0f, 0.0f, 50.0f)),
+											new GameObject(_pd3dDevice, "Models/ship2.obj", L"Textures/pirateship.dds", vector3(50.0f, 0.0f, 50.0f), vector3(), vector3(0.15f, 0.15f, 0.15f)),
 											hierarchy->GetBase()));
-	hierarchy->GetBase()->children[0]->children.push_back(new SceneGraphObject(
-											new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(0.0f, 1.5f, -2.0f), vector3(), vector3(0.3f, 0.3f, 0.3f)),
-											hierarchy->GetBase()->children[0]));
+	//hierarchy->GetBase()->children[0]->children.push_back(new SceneGraphObject(
+	//										new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(0.0f, 1.5f, -2.0f)),
+	//										hierarchy->GetBase()->children[0]));
 
 	return S_OK;
 }
@@ -378,8 +372,9 @@ void Application::Draw()
 		//Set texture
 		ID3D11SamplerState* samp = s->GetSampler();
 		_pImmediateContext->PSSetSamplers(0, 1, &samp);
-		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetTexture());
-
+		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
+		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
+		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
 
 		//Set vertex and index buffer
 		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);

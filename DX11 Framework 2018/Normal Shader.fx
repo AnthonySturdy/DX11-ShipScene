@@ -8,6 +8,8 @@
 // Constant Buffer Variables
 //--------------------------------------------------------------------------------------
 Texture2D txDiffuse : register(t0);
+Texture2D txNormal : register(t1);
+Texture2D txSpecular : register(t2);
 SamplerState samLinear : register(s0);
 
 cbuffer ConstantBuffer : register( b0 )
@@ -68,7 +70,10 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 //--------------------------------------------------------------------------------------
 float4 PS(PS_INPUT input) : SV_Target
 {
-	float3 normalW = normalize(input.Norm);
+	//Apply normal map to normal direction
+	float3 texNormal = txNormal.Sample(samLinear, input.Tex).rgb;
+	texNormal = (texNormal * 2.0f) - 1.0f;
+	float3 normalW = normalize(input.Norm) * texNormal;
 
 	//Compute the reflection vector
 	float3 r = reflect(-LightVecW, normalW);
@@ -82,7 +87,7 @@ float4 PS(PS_INPUT input) : SV_Target
 	//Compute ambient colour
 	float3 ambient = AmbientMtrl * AmbientLight;
 	//Compute Specular colour
-	float3 specular = specularAmount * (SpecularMtrl * SpecularLight).rbg;
+	float3 specular = specularAmount * (SpecularMtrl * SpecularLight).rbg * txSpecular.Sample(samLinear, input.Tex);
 
 	//Texture colour
 	float4 texCol = txDiffuse.Sample(samLinear, input.Tex);
