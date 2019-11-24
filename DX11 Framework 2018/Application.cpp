@@ -336,7 +336,6 @@ void Application::Draw()
 	//Render GameObjects
 	for (int i = 0; i < gameObjects.size(); i++) {
 		//Set position
-		//Set position
 		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
 
 		//Set constant buffer

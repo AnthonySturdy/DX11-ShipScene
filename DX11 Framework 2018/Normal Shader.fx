@@ -70,10 +70,9 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 //--------------------------------------------------------------------------------------
 float4 PS(PS_INPUT input) : SV_Target
 {
-	//Apply normal map to normal direction
-	float3 texNormal = txNormal.Sample(samLinear, input.Tex).rgb;
-	texNormal = (texNormal * 2.0f) - 1.0f;
-	float3 normalW = normalize(input.Norm) * texNormal;
+	float3 texNormal = txNormal.Sample(samLinear, input.Tex).rgb;	//Get normal map values
+	//txtNormal = normalize(texNormal * 2.0 - 1.0);	//Convert to -1
+	float3 normalW = normalize(input.Norm) + texNormal;
 
 	//Compute the reflection vector
 	float3 r = reflect(-LightVecW, normalW);
