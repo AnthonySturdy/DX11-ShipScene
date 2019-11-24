@@ -1,0 +1,28 @@
+{
+  "0": {
+    "Type": "GameObject_Plane",
+    "TextureDirectory": "Textures/tiles.dds",
+    "PlaneWidth": 100,
+    "PlaneHeight": 100,
+    "Position": {
+      "x": -50,
+      "y": 0,
+      "z": -50
+    },
+    "1": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/ship2.obj",
+      "TextureDirectory": "Textures/pirateship.dds",
+      "Position": {
+        "x": 50,
+        "y": 0,
+        "z": 50
+      },
+      "Scale": {
+        "x": 0.15,
+        "y": 0.15,
+        "z": 0.15
+      }
+    }
+  }
+}

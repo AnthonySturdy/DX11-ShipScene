@@ -23,7 +23,7 @@ protected:
 	std::wstring AddSuffixBeforeExtension(std::wstring str, std::wstring suffix, std::wstring extension);
 
 public:
-	GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material(), ShaderType _shaderType = ShaderType::NORMAL);
+	GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos = vector3(), vector3 initRot = vector3(), vector3 initScale = vector3(), Material _material = Material(), ShaderType _shaderType = ShaderType::DEFAULT);
 	~GameObject();
 
 	MeshData* GetMesh();

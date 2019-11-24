@@ -1,7 +1,7 @@
 #include "GameObject_Plane.h"
 
-GameObject_Plane::GameObject_Plane(ID3D11Device* _device, std::wstring textureDir, int planeWidth, int planeDepth, vector3 initPos, vector3 initRot, vector3 initScale, Material _material, ShaderType _shaderType) : GameObject(_device, "", textureDir, vector3(initPos.x, initPos.y, initPos.z), vector3(initRot.x, initRot.y, initRot.z), vector3(initScale.x, initScale.y, initScale.z), _material, _shaderType) {
-	width = planeWidth;																																																			// ^ No idea why this is needed, otherwise the Y is copied to the Z value for some reason
+GameObject_Plane::GameObject_Plane(ID3D11Device* _device, std::wstring textureDir, int planeWidth, int planeDepth, vector3 initPos, vector3 initRot, vector3 initScale, Material _material, ShaderType _shaderType) : GameObject(_device, "", textureDir, initPos, initRot, initScale, _material, _shaderType) {
+	width = planeWidth;
 	depth = planeDepth;
 
 	CreateMesh(_device);

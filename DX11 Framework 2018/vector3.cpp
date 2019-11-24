@@ -5,15 +5,15 @@ vector3::vector3() {
 }
 
 vector3::vector3(float _x, float _y, float _z) {
-	x = _x;
-	y = _y;
-	z = _z;
+	this->x = _x;
+	this->y = _y;
+	this->z = _z;
 }
 
 vector3::vector3(const vector3& vec) {
 	x = vec.x;
 	y = vec.y;
-	z = vec.y;
+	z = vec.z;
 }
 
 vector3 vector3::operator+(const vector3& vec) {

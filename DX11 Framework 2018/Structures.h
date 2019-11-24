@@ -56,6 +56,6 @@ struct ConstantBuffer
 };
 
 enum ShaderType {
-	NORMAL = 0,
+	DEFAULT = 0,
 	NO_LIGHTING = 1
 };

@@ -22,6 +22,7 @@
     <ClInclude Include="Shader.h" />
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SceneGraphObject.h" />
+    <ClInclude Include="json.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />

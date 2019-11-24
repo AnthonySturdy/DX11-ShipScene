@@ -395,6 +395,7 @@
     <ClInclude Include="DDSTextureLoader.h" />
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="GameObject_Plane.h" />
+    <ClInclude Include="json.hpp" />
     <ClInclude Include="OBJLoader.h" />
     <CLInclude Include="resource.h" />
     <ClInclude Include="SceneGraph.h" />
