@@ -13,4 +13,5 @@ public:
 	~SceneGraphObject();
 
 	void UpdateTransformation(std::vector<GameObject*>* gameobjectList);
+	float DegreesToRadians(float f);
 };

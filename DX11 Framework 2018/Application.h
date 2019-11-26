@@ -20,9 +20,6 @@
 
 using namespace DirectX;
 
-#define PLANE_WIDTH		100
-#define PLANE_HEIGHT	100
-
 class Application
 {
 private:

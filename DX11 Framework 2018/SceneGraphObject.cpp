@@ -28,7 +28,7 @@ void SceneGraphObject::UpdateTransformation(std::vector<GameObject*>* gameobject
 		vector3* scale = gameObject->GetScale();
 		XMFLOAT4X4 newMtx;
 		XMStoreFloat4x4(&newMtx, XMMatrixScaling(scale->x, scale->y, scale->z) *		//Apply scale
-								XMMatrixRotationRollPitchYaw(rot->x, rot->y, rot->z) *	//Apply rotation
+								XMMatrixRotationRollPitchYaw(DegreesToRadians(rot->x), DegreesToRadians(rot->y), DegreesToRadians(rot->z)) *	//Apply rotation
 								XMMatrixTranslation(pos->x, pos->y, pos->z));			//Apply position
 		gameObject->SetWorldMatrix(newMtx);
 	} else {
@@ -46,9 +46,9 @@ void SceneGraphObject::UpdateTransformation(std::vector<GameObject*>* gameobject
 		XMFLOAT4X4 newMtx;
 		XMStoreFloat4x4(&newMtx, XMMatrixScaling(scale->x, scale->y, scale->z) *						//Apply scale
 								XMMatrixScaling(parentScale->x, parentScale->y, parentScale->z) *		//Apply parent scale
-								XMMatrixRotationRollPitchYaw(rot->x, rot->y, rot->z) *					//Apply rotation
+								XMMatrixRotationRollPitchYaw(DegreesToRadians(rot->x), DegreesToRadians(rot->y), DegreesToRadians(rot->z)) *					//Apply rotation
 								XMMatrixTranslation(pos->x, pos->y, pos->z) *							//Apply position
-								XMMatrixRotationRollPitchYaw(parentRot->x, parentRot->y, parentRot->z) *//Apply parent rotation
+								XMMatrixRotationRollPitchYaw(DegreesToRadians(parentRot->x), DegreesToRadians(parentRot->y), DegreesToRadians(parentRot->z)) *	//Apply parent rotation
 								XMMatrixTranslation(parentPos->x, parentPos->y, parentPos->z));			//Apply parent position
 		gameObject->SetWorldMatrix(newMtx);
 	}
@@ -56,4 +56,8 @@ void SceneGraphObject::UpdateTransformation(std::vector<GameObject*>* gameobject
 	for (int i = 0; i < children.size(); i++) {
 		children[i]->UpdateTransformation(gameobjectList);
 	}
+}
+
+float SceneGraphObject::DegreesToRadians(float f) {
+	return (f) * XM_PI / 180;
 }

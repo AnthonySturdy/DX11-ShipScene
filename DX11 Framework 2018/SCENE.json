@@ -1,27 +1,57 @@
 {
   "0": {
-    "Type": "GameObject_Plane",
+    "Type": "GameObject",
+    "ModelDirectory": "Models/SeaBed.obj",
     "TextureDirectory": "Textures/tiles.dds",
-    "PlaneWidth": 100,
-    "PlaneHeight": 100,
-    "Position": {
-      "x": -50,
-      "y": 0,
-      "z": -50
+    "1.0": {
+      "Type": "GameObject_Plane",
+      "TextureDirectory": "Textures/water.dds",
+      "PlaneWidth": 200,
+      "PlaneHeight": 200,
+      "Position": {
+        "x": -100,
+        "y": -1,
+        "z": -100
+      }
     },
-    "1": {
+    "1.1": {
       "Type": "GameObject",
       "ModelDirectory": "Models/ship2.obj",
       "TextureDirectory": "Textures/pirateship.dds",
       "Position": {
-        "x": 50,
+        "x": 30,
         "y": 0,
-        "z": 50
+        "z": 30
+      },
+      "Rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
       },
       "Scale": {
         "x": 0.15,
         "y": 0.15,
         "z": 0.15
+      }
+    },
+    "1.2": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/RockCluster.obj",
+      "TextureDirectory": "Textures/water.dds",
+      "Position": {
+        "x": 19.4,
+        "y": 6.6,
+        "z": 95.6
+      },
+      "Rotation": {
+        "x": 13.667,
+        "y": 165.814,
+        "z": -5.543
+      },
+      "Scale": {
+        "x": 0.05897709,
+        "y": 0.040891,
+        "z": 0.04825956
       }
     }
   }

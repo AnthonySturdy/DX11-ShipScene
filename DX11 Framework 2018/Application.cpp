@@ -64,10 +64,10 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
 	srand(time(NULL));
 
-	//Create cameras
-	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
-	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 1.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
-	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 1.0f, -5.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 100.0f));
+	//Initialise cameras
+	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	currentCamera = cameras[0];
 
 	//Initialise Shaders
@@ -83,14 +83,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
     // Initialize the projection matrix
 	XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 
+	//Load scene from json file
 	hierarchy = new SceneGraph("SCENE.json", _pd3dDevice);
-	//hierarchy = new SceneGraph(new GameObject_Plane(_pd3dDevice, L"Textures/tiles.dds", PLANE_WIDTH, PLANE_HEIGHT, vector3(-50.0f, 0.0f, -50.0f)));
-	//hierarchy->GetBase()->children.push_back(new SceneGraphObject(
-	//										new GameObject(_pd3dDevice, "Models/ship2.obj", L"Textures/pirateship.dds", vector3(50.0f, 0.0f, 50.0f), vector3(), vector3(0.15f, 0.15f, 0.15f)),
-	//										hierarchy->GetBase()));
-	//hierarchy->GetBase()->children[0]->children.push_back(new SceneGraphObject(
-	//										new GameObject(_pd3dDevice, "Models/G06_hotdog.obj", L"Textures/hotdog.dds", vector3(0.0f, 1.5f, -2.0f)),
-	//										hierarchy->GetBase()->children[0]));
 
 	return S_OK;
 }
@@ -317,7 +311,7 @@ void Application::Update()
 	_time = t;
 
     // Animate test GameObject
-	hierarchy->GetBase()->children[0]->gameObject->SetRotation(vector3(0, t / 2, 0));
+	hierarchy->GetBase()->children[1]->gameObject->SetRotation(vector3(0, t / 2, 0));
 	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	//Pass in gameobjects list to populate it
 }
 
