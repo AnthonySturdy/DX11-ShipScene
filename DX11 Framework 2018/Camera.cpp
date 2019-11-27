@@ -4,6 +4,7 @@ Camera::Camera(XMFLOAT3 _position, XMFLOAT3 _at, XMFLOAT3 _up, float _windowWidt
 	eye = _position;
 	at = _at;
 	up = _up;
+	rotation = XMFLOAT3(0, 0, 0);
 	windowWidth = _windowWidth;
 	windowHeight = _windowHeight;
 	nearDepth = _nearDepth;

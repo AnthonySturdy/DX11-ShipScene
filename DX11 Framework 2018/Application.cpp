@@ -308,10 +308,35 @@ void Application::Update()
 		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 	}
 
+	//Camera control
+	if (GetAsyncKeyState(0x57)) { //W
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y + 0.1f, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y + 0.1f, currentCamera->GetAt().z));
+	} else if (GetAsyncKeyState(0x53)) { //S
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y - 0.1f, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y - 0.1f, currentCamera->GetAt().z));
+	}
+	if (GetAsyncKeyState(0x41)) { //A
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x + 0.1f, currentCamera->GetEye().y, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x + 0.1f, currentCamera->GetAt().y, currentCamera->GetAt().z));
+	}
+	else if (GetAsyncKeyState(0x44)) { //D
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x - 0.1f, currentCamera->GetEye().y, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x - 0.1f, currentCamera->GetAt().y, currentCamera->GetAt().z));
+	}
+	if (GetAsyncKeyState(0x51)) { //Q
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z + 0.1f));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z + 0.1f));
+	}
+	else if (GetAsyncKeyState(0x45)) { //E
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z - 0.1f));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z - 0.1f));
+	}
+	currentCamera->Update();
 	_time = t;
 
     // Animate test GameObject
-	hierarchy->GetBase()->children[1]->gameObject->SetRotation(vector3(0, t / 2, 0));
+	//hierarchy->GetBase()->children[1]->gameObject->SetRotation(vector3(0, t, 0));
 	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	//Pass in gameobjects list to populate it
 }
 
@@ -322,8 +347,8 @@ void Application::Draw()
     _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
 	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
-	XMMATRIX view = XMLoadFloat4x4(&_view);
-	XMMATRIX projection = XMLoadFloat4x4(&_projection);
+	XMMATRIX view = currentCamera->GetViewMatrix();
+	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
     // Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
