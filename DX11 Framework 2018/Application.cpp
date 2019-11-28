@@ -65,16 +65,17 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	srand(time(NULL));
 
 	//Initialise cameras
-	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	currentCamera = cameras[0];
 
 	//Initialise Shaders
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Normal Shader.fx"));
-	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Boat Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Water Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Land Under Water Shader.fx"));
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
 
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
@@ -360,7 +361,8 @@ void Application::Update()
 	_time = t;
 
     // Animate test GameObject
-	//hierarchy->GetBase()->children[1]->gameObject->SetRotation(vector3(0, t, 0));
+	hierarchy->GetBase()->children[0]->gameObject->SetPosition(*(hierarchy->GetBase()->children[0]->gameObject->GetPosition()) + vector3(0.0005f, 0, 0));
+	hierarchy->GetBase()->children[5]->gameObject->SetPosition(vector3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z));
 	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	//Pass in gameobjects list to populate it
 }
 

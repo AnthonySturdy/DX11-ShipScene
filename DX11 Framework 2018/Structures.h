@@ -23,7 +23,7 @@ struct Material {
 		ambientLight = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.2f);
 		specularMaterial = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);
 		specularLight = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);
-		specularPower = 10.0f;
+		specularPower = 6.5f;
 	}
 
 	XMFLOAT3 lightDirection;	//Light direction from surface (x, y, z)
@@ -57,7 +57,8 @@ struct ConstantBuffer
 
 enum ShaderType {
 	DEFAULT = 0,
-	NO_LIGHTING = 1,
+	BOAT = 1,
 	WATER = 2,
-	LAND_UNDER_WATER = 3
+	LAND_UNDER_WATER = 3,
+	NO_LIGHT = 4
 };

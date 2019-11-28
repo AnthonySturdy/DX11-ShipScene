@@ -8,8 +8,9 @@
       "Type": "GameObject",
       "ModelDirectory": "Models/ship2.obj",
       "TextureDirectory": "Textures/pirateship.dds",
+      "ShaderType": 1,
       "Position": {
-        "x": 30,
+        "x": -30,
         "y": -0.8,
         "z": 30
       },
@@ -254,6 +255,17 @@
         "x": -100,
         "y": -1,
         "z": -100
+      }
+    },
+    "1.14": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Skybox.obj",
+      "TextureDirectory": "Textures/skybox.dds",
+      "ShaderType": 4,
+      "Scale": {
+        "x": 350,
+        "y": 350,
+        "z": 350
       }
     }
   }

@@ -35,6 +35,7 @@ struct PS_INPUT
     float3 Norm : NORMAL0;
 	float3 eyePos : POSITION0;
 	float2 Tex : TEXCOORD0;
+	float3 vPos : POSITION1;
 };
 
 //--------------------------------------------------------------------------------------
@@ -54,10 +55,12 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 	output.eyePos = toEye;
 
 	//Make vertices wobble when under water (Water depth is -1, but do it after -5)
-	if (Pos.y < -7) {
-		output.Pos.x = output.Pos.x + (sin(gTime + Pos.z * 1.2f) * 0.7f);
-		output.Pos.z = output.Pos.z + (sin(gTime + Pos.y * 0.8f) * 0.7f);
+	if (Pos.y < -4) {
+		output.Pos.x = output.Pos.x + (sin(gTime + Pos.z * 1.8f) * 0.7f);
+		output.Pos.z = output.Pos.z + (sin(gTime + Pos.y * 1.4f) * 0.7f);
 	}
+
+	output.vPos = output.Pos;
 
     output.Pos = mul( output.Pos, View );
     output.Pos = mul( output.Pos, Projection );
@@ -99,6 +102,14 @@ float4 PS(PS_INPUT input) : SV_Target
 	float4 outCol;
 	outCol.rgb = texCol + ambient + diffuse + specular;
 	outCol.a = DiffuseMtrl.a;
+
+	//If below sea level, turning colour more blue
+	if (input.vPos.y < 0) {
+		outCol.r -= abs(input.vPos.y) / 50.0f;
+		outCol.g -= abs(input.vPos.y) / 50.0f;
+		outCol.b = texCol.b + (abs(input.vPos.y) / 50.0f);
+		outCol.rgb -= abs(input.vPos.y) / 20.0f;
+	} 
 
 	return outCol;
 }

@@ -406,7 +406,7 @@
     <ResourceCompile Include="DX11 Framework.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="No Light Shader.fx">
+    <None Include="Boat Shader.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>
@@ -423,6 +423,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Land Under Water Shader.fx">
+      <FileType>Document</FileType>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="No Light Shader.fx">
       <FileType>Document</FileType>
     </None>
   </ItemGroup>

@@ -52,6 +52,9 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 	//output.Pos is currently the position in world space
 	float3 toEye = normalize(EyePosW - output.Pos.xyz);
 	output.eyePos = toEye;
+	float frequency = 0.3f;
+	float magnitude = 0.4f;
+	output.Pos.y += sin(gTime + (Pos.x * frequency)) * magnitude;
 
     output.Pos = mul( output.Pos, View );
     output.Pos = mul( output.Pos, Projection );
