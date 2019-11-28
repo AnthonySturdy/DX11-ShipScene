@@ -57,5 +57,7 @@ struct ConstantBuffer
 
 enum ShaderType {
 	DEFAULT = 0,
-	NO_LIGHTING = 1
+	NO_LIGHTING = 1,
+	WATER = 2,
+	LAND_UNDER_WATER = 3
 };

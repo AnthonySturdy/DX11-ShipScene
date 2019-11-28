@@ -54,5 +54,11 @@
     <None Include="No Light Shader.fx">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="Water Shader.fx">
+      <Filter>Shaders</Filter>
+    </None>
+    <None Include="Land Under Water Shader.fx">
+      <Filter>Shaders</Filter>
+    </None>
   </ItemGroup>
 </Project>

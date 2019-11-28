@@ -73,6 +73,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	//Initialise Shaders
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Normal Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Water Shader.fx"));
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Land Under Water Shader.fx"));
 
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
@@ -246,6 +248,27 @@ HRESULT Application::InitDevice()
 	wfdesc1.CullMode = D3D11_CULL_BACK;
 	hr = _pd3dDevice->CreateRasterizerState(&wfdesc1, &_solidRenderState);
 
+	//Blend state
+	D3D11_RENDER_TARGET_BLEND_DESC rtbd;
+	ZeroMemory(&rtbd, sizeof(rtbd));
+
+	D3D11_BLEND_DESC blendDesc;
+	ZeroMemory(&blendDesc, sizeof(blendDesc));
+
+	rtbd.BlendEnable = true;
+	rtbd.SrcBlend = D3D11_BLEND_SRC_COLOR;
+	rtbd.DestBlend = D3D11_BLEND_BLEND_FACTOR;
+	rtbd.BlendOp = D3D11_BLEND_OP_ADD;
+	rtbd.SrcBlendAlpha = D3D11_BLEND_ONE;
+	rtbd.DestBlendAlpha = D3D11_BLEND_ZERO;
+	rtbd.BlendOpAlpha = D3D11_BLEND_OP_ADD;
+	rtbd.RenderTargetWriteMask = D3D10_COLOR_WRITE_ENABLE_ALL;
+
+	blendDesc.AlphaToCoverageEnable = false;
+	blendDesc.RenderTarget[0] = rtbd;
+
+	_pd3dDevice->CreateBlendState(&blendDesc, &_transparency);
+
     if (FAILED(hr))
         return hr;
 
@@ -263,6 +286,7 @@ void Application::Cleanup()
 	if (_depthStencilView) _depthStencilView->Release();
 	if (_depthStencilBuffer) _depthStencilBuffer->Release();
 	if (_wireFrameRenderState) _wireFrameRenderState->Release();
+	if (_transparency) _transparency->Release();
 }
 
 void Application::Update()
@@ -310,27 +334,27 @@ void Application::Update()
 
 	//Camera control
 	if (GetAsyncKeyState(0x57)) { //W
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y + 0.1f, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y + 0.1f, currentCamera->GetAt().z));
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y + 0.03f, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y + 0.03f, currentCamera->GetAt().z));
 	} else if (GetAsyncKeyState(0x53)) { //S
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y - 0.1f, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y - 0.1f, currentCamera->GetAt().z));
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y - 0.03f, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y - 0.03f, currentCamera->GetAt().z));
 	}
 	if (GetAsyncKeyState(0x41)) { //A
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x + 0.1f, currentCamera->GetEye().y, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x + 0.1f, currentCamera->GetAt().y, currentCamera->GetAt().z));
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x + 0.03f, currentCamera->GetEye().y, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x + 0.03f, currentCamera->GetAt().y, currentCamera->GetAt().z));
 	}
 	else if (GetAsyncKeyState(0x44)) { //D
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x - 0.1f, currentCamera->GetEye().y, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x - 0.1f, currentCamera->GetAt().y, currentCamera->GetAt().z));
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x - 0.03f, currentCamera->GetEye().y, currentCamera->GetEye().z));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x - 0.03f, currentCamera->GetAt().y, currentCamera->GetAt().z));
 	}
 	if (GetAsyncKeyState(0x51)) { //Q
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z + 0.1f));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z + 0.1f));
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z + 0.03f));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z + 0.03f));
 	}
 	else if (GetAsyncKeyState(0x45)) { //E
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z - 0.1f));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z - 0.1f));
+		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z - 0.03f));
+		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z - 0.03f));
 	}
 	currentCamera->Update();
 	_time = t;
@@ -380,6 +404,12 @@ void Application::Draw()
 
 		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
 
+		//Set blend state
+		float blendFactor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+		if (gameObjects[i]->GetShaderType() == ShaderType::WATER)
+			_pImmediateContext->OMSetBlendState(_transparency, blendFactor, 0xffffffff);
+		else
+			_pImmediateContext->OMSetBlendState(0, 0, 0xffffffff);
 
 		//Set shader
 		Shader* s = shaders[gameObjects[i]->GetShaderType()];

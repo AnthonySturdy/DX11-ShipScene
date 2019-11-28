@@ -32,11 +32,6 @@ void SceneGraphObject::UpdateTransformation(std::vector<GameObject*>* gameobject
 								XMMatrixTranslation(pos->x, pos->y, pos->z));			//Apply position
 		gameObject->SetWorldMatrix(newMtx);
 	} else {
-		//Set position of all parents combined
-		totalParentPos = *(gameObject->GetPosition()) + parent->totalParentPos;
-		totalParentRot = *(gameObject->GetRotation()) + parent->totalParentRot;
-		totalParentScale = *(gameObject->GetScale()) + parent->totalParentScale;
-
 		vector3* pos = gameObject->GetPosition();
 		vector3* parentPos = &parent->totalParentPos;
 		vector3* rot = gameObject->GetRotation();
@@ -51,6 +46,11 @@ void SceneGraphObject::UpdateTransformation(std::vector<GameObject*>* gameobject
 								XMMatrixRotationRollPitchYaw(DegreesToRadians(parentRot->x), DegreesToRadians(parentRot->y), DegreesToRadians(parentRot->z)) *	//Apply parent rotation
 								XMMatrixTranslation(parentPos->x, parentPos->y, parentPos->z));			//Apply parent position
 		gameObject->SetWorldMatrix(newMtx);
+
+		//Set position of all parents combined
+		totalParentPos = *(gameObject->GetPosition()) + parent->totalParentPos;
+		totalParentRot = *(gameObject->GetRotation()) + parent->totalParentRot;
+		totalParentScale = *(gameObject->GetScale()) + parent->totalParentScale;
 	}
 
 	for (int i = 0; i < children.size(); i++) {

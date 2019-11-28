@@ -58,6 +58,8 @@ float4 PS(PS_INPUT input) : SV_Target
 	//Texture colour
 	float4 texCol = txDiffuse.Sample(samLinear, input.Tex);
 
+	clip(texCol.a - 0.15f);
+
 	float4 outCol;
 	outCol.rgb = texCol;
 	outCol.a = 1;
