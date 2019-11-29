@@ -17,6 +17,7 @@
 #include "Shader.h"
 #include "SceneGraph.h"
 #include "SceneGraphObject.h"
+#include "ShipController.h"
 
 using namespace DirectX;
 
@@ -46,6 +47,8 @@ private:
 	std::vector<Shader*> shaders;
 	std::vector<GameObject*> gameObjects;
 	SceneGraph* hierarchy;
+
+	ShipController* shipController = nullptr;
 
 	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)
 	XMFLOAT4 diffuseMaterial = XMFLOAT4(0.8f, 0.5f, 0.5f, 1.0f);	//Diffuse material properties (rgba)

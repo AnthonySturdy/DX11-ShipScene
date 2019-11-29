@@ -23,6 +23,7 @@
     <ClInclude Include="SceneGraph.h" />
     <ClInclude Include="SceneGraphObject.h" />
     <ClInclude Include="json.hpp" />
+    <ClInclude Include="ShipController.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Application.cpp" />
@@ -36,6 +37,7 @@
     <ClCompile Include="Shader.cpp" />
     <ClCompile Include="SceneGraph.cpp" />
     <ClCompile Include="SceneGraphObject.cpp" />
+    <ClCompile Include="ShipController.cpp" />
   </ItemGroup>
   <ItemGroup>
     <CLInclude Include="resource.h">

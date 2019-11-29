@@ -65,8 +65,8 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 	srand(time(NULL));
 
 	//Initialise cameras
-	cameras.push_back(new Camera(XMFLOAT3(-5.0f, 6.0f, 5.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
-	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(40.0f, 3.0f, 50.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	currentCamera = cameras[0];
 
@@ -334,6 +334,7 @@ void Application::Update()
 	}
 
 	//Camera control
+	/*
 	if (GetAsyncKeyState(0x57)) { //W
 		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y + 0.03f, currentCamera->GetEye().z));
 		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y + 0.03f, currentCamera->GetAt().z));
@@ -356,13 +357,15 @@ void Application::Update()
 	else if (GetAsyncKeyState(0x45)) { //E
 		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z - 0.03f));
 		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z - 0.03f));
-	}
+	}*/
 	currentCamera->Update();
 	_time = t;
 
     // Animate test GameObject
-	hierarchy->GetBase()->children[0]->gameObject->SetPosition(*(hierarchy->GetBase()->children[0]->gameObject->GetPosition()) + vector3(0.0005f, 0, 0));
+	//hierarchy->GetBase()->children[0]->gameObject->SetPosition(*(hierarchy->GetBase()->children[0]->gameObject->GetPosition()) + vector3(0.0005f, 0, 0));
 	hierarchy->GetBase()->children[5]->gameObject->SetPosition(vector3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z));
+	shipController = new ShipController(hierarchy->GetBase()->children[0]->gameObject);
+	shipController->Update();
 	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	//Pass in gameobjects list to populate it
 }
 
