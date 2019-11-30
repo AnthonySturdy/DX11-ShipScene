@@ -89,14 +89,14 @@ float4 PS(PS_INPUT input) : SV_Target
 	//Compute ambient colour
 	float3 ambient = AmbientMtrl * AmbientLight;
 	//Compute Specular colour
-	float3 specular = specularAmount * (SpecularMtrl * SpecularLight).rbg * txSpecular.Sample(samLinear, input.Tex);
+	float3 specular = specularAmount * (SpecularMtrl * SpecularLight).rbg * txSpecular.Sample(samLinear, input.Tex) * 0.8f;
 
 	//Texture colour
 	float4 texCol = txDiffuse.Sample(samLinear, input.Tex);
 
 	float4 outCol;
 	outCol.rgb = texCol + ambient + diffuse + specular;
-	outCol.a = 0.8f;
+	outCol.a = 1.0f;
 
 	return outCol;
 }

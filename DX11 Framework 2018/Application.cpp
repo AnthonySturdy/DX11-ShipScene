@@ -62,7 +62,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
 
 	//Initialise cameras
 	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
-	cameras.push_back(new Camera(XMFLOAT3(40.0f, 3.0f, 50.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(40.0f, 40.0f, 50.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
 	currentCamera = cameras[0];
 
