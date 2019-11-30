@@ -23,6 +23,21 @@
         "x": 0.15,
         "y": 0.15,
         "z": 0.15
+      },
+      "2.1": {
+        "Type": "GameObject",
+        "ModelDirectory": "Models/Skybox.obj",
+        "TextureDirectory": "Textures/transparent.dds",
+        "3.1": {
+          "Type": "GameObject",
+          "ModelDirectory": "Models/Skybox.obj",
+          "TextureDirectory": "Textures/transparent.dds",
+          "Position": {
+            "x": 0,
+            "y": 10,
+            "z": -20
+          }
+        }
       }
     },
     "1.2": {

@@ -1,7 +1,6 @@
 #include "Application.h"
 
-LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
-{
+LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam) {
     PAINTSTRUCT ps;
     HDC hdc;
 
@@ -23,8 +22,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
     return 0;
 }
 
-Application::Application()
-{
+Application::Application() {
 	_hInst = nullptr;
 	_hWnd = nullptr;
 	_driverType = D3D_DRIVER_TYPE_NULL;
@@ -38,13 +36,11 @@ Application::Application()
 	_depthStencilBuffer = nullptr;
 }
 
-Application::~Application()
-{
+Application::~Application() {
 	Cleanup();
 }
 
-HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
-{
+HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
     if (FAILED(InitWindow(hInstance, nCmdShow)))
 	{
         return E_FAIL;
@@ -88,12 +84,12 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow)
 
 	//Load scene from json file
 	hierarchy = new SceneGraph("SCENE.json", _pd3dDevice);
+	shipController = new ShipController(hierarchy->GetBase()->children[0]->gameObject);
 
 	return S_OK;
 }
 
-HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
-{
+HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow) {
     // Register class
     WNDCLASSEX wcex;
     wcex.cbSize = sizeof(WNDCLASSEX);
@@ -126,8 +122,7 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow)
     return S_OK;
 }
 
-HRESULT Application::InitDevice()
-{
+HRESULT Application::InitDevice() {
     HRESULT hr = S_OK;
 
     UINT createDeviceFlags = 0;
@@ -136,8 +131,7 @@ HRESULT Application::InitDevice()
     createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
 #endif
 
-    D3D_DRIVER_TYPE driverTypes[] =
-    {
+    D3D_DRIVER_TYPE driverTypes[] = {
         D3D_DRIVER_TYPE_HARDWARE,
         D3D_DRIVER_TYPE_WARP,
         D3D_DRIVER_TYPE_REFERENCE,
@@ -145,8 +139,7 @@ HRESULT Application::InitDevice()
 
     UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
-    D3D_FEATURE_LEVEL featureLevels[] =
-    {
+    D3D_FEATURE_LEVEL featureLevels[] = {
         D3D_FEATURE_LEVEL_11_0,
         D3D_FEATURE_LEVEL_10_1,
         D3D_FEATURE_LEVEL_10_0,
@@ -168,8 +161,7 @@ HRESULT Application::InitDevice()
     sd.SampleDesc.Quality = 0;
     sd.Windowed = TRUE;
 
-    for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++)
-    {
+    for (UINT driverTypeIndex = 0; driverTypeIndex < numDriverTypes; driverTypeIndex++) {
         _driverType = driverTypes[driverTypeIndex];
         hr = D3D11CreateDeviceAndSwapChain(nullptr, _driverType, nullptr, createDeviceFlags, featureLevels, numFeatureLevels,
                                            D3D11_SDK_VERSION, &sd, &_pSwapChain, &_pd3dDevice, &_featureLevel, &_pImmediateContext);
@@ -276,8 +268,7 @@ HRESULT Application::InitDevice()
     return S_OK;
 }
 
-void Application::Cleanup()
-{
+void Application::Cleanup() {
     if (_pImmediateContext) _pImmediateContext->ClearState();
     if (_pConstantBuffer) _pConstantBuffer->Release();
     if (_pRenderTargetView) _pRenderTargetView->Release();
@@ -290,8 +281,7 @@ void Application::Cleanup()
 	if (_transparency) _transparency->Release();
 }
 
-void Application::Update()
-{
+void Application::Update() {
     // Update our time
     static float t = 0.0f;
 
@@ -310,7 +300,7 @@ void Application::Update()
         t = (dwTimeCur - dwTimeStart) / 1000.0f;
     }
 
-	if (GetAsyncKeyState(VK_UP)) {
+	if (GetAsyncKeyState(VK_F1)) {
 		isAllWireframe = !isAllWireframe;
 	}
 
@@ -333,44 +323,38 @@ void Application::Update()
 		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 	}
 
+	//Update ship
+	shipController->Update();
+
+	//Update all SceneGraph positions and populate gameObjects list
+	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	
+
 	//Camera control
-	/*
-	if (GetAsyncKeyState(0x57)) { //W
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y + 0.03f, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y + 0.03f, currentCamera->GetAt().z));
-	} else if (GetAsyncKeyState(0x53)) { //S
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y - 0.03f, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y - 0.03f, currentCamera->GetAt().z));
+	GameObject* camPosParentObject = hierarchy->GetBase()->children[0]->children[0]->gameObject;
+	GameObject* camPosObject = hierarchy->GetBase()->children[0]->children[0]->children[0]->gameObject;		// Hierarchy base->Ship->Camera Parent (for rotation)->Child (camPos object)
+	XMFLOAT4X4* camPosViewMatrix = camPosObject->GetWorldMatrix();	
+	vector3 camPos(camPosViewMatrix->_41, camPosViewMatrix->_42, camPosViewMatrix->_43);	//Have to access matrix to get actual position after other transformations (such as rotation and scaling)
+	vector3 camLookAt = *shipController->GetShip()->GetPosition();
+	cameras[0]->SetEye(XMFLOAT3(camPos.x, camPos.y, camPos.z));
+	cameras[0]->SetAt(XMFLOAT3(camLookAt.x, camLookAt.y, camLookAt.z));
+	if (GetAsyncKeyState(VK_LEFT)) {
+		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y + 0.03f, camPosParentObject->GetRotation()->z));
+	} 
+	if (GetAsyncKeyState(VK_RIGHT)) {
+		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y - 0.03f, camPosParentObject->GetRotation()->z));
 	}
-	if (GetAsyncKeyState(0x41)) { //A
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x + 0.03f, currentCamera->GetEye().y, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x + 0.03f, currentCamera->GetAt().y, currentCamera->GetAt().z));
-	}
-	else if (GetAsyncKeyState(0x44)) { //D
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x - 0.03f, currentCamera->GetEye().y, currentCamera->GetEye().z));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x - 0.03f, currentCamera->GetAt().y, currentCamera->GetAt().z));
-	}
-	if (GetAsyncKeyState(0x51)) { //Q
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z + 0.03f));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z + 0.03f));
-	}
-	else if (GetAsyncKeyState(0x45)) { //E
-		currentCamera->SetEye(XMFLOAT3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z - 0.03f));
-		currentCamera->SetAt(XMFLOAT3(currentCamera->GetAt().x, currentCamera->GetAt().y, currentCamera->GetAt().z - 0.03f));
-	}*/
+
 	currentCamera->Update();
 	_time = t;
 
-    // Animate test GameObject
-	//hierarchy->GetBase()->children[0]->gameObject->SetPosition(*(hierarchy->GetBase()->children[0]->gameObject->GetPosition()) + vector3(0.0005f, 0, 0));
-	hierarchy->GetBase()->children[5]->gameObject->SetPosition(vector3(currentCamera->GetEye().x, currentCamera->GetEye().y, currentCamera->GetEye().z));
-	shipController = new ShipController(hierarchy->GetBase()->children[0]->gameObject);
-	shipController->Update();
-	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	//Pass in gameobjects list to populate it
+	// Set Skybox Position
+	hierarchy->GetBase()->children[5]->gameObject->SetPosition(vector3(
+		currentCamera->GetEye().x,
+		currentCamera->GetEye().y,
+		currentCamera->GetEye().z));
 }
 
-void Application::Draw()
-{
+void Application::Draw() {
     // Clear the back buffer
     float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f};	// red,green,blue,alpha
     _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);

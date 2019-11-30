@@ -17,7 +17,8 @@ public:
 	ShipController(GameObject* _ship);
 
 	void Update();
-	float Interpolate(float current, float target, float increment);
 	XMFLOAT2 DegreesToVector(float rot);
 	float DegreesToRadians(float f);
+
+	GameObject* GetShip();
 };
