@@ -60,5 +60,6 @@ enum ShaderType {
 	BOAT = 1,
 	WATER = 2,
 	LAND_UNDER_WATER = 3,
-	NO_LIGHT = 4
+	NO_LIGHT = 4,
+	SHADOW_MAP = 5
 };
