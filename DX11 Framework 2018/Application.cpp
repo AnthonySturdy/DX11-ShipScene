@@ -386,16 +386,74 @@ void Application::Update() {
 }
 
 void Application::Draw() {
-	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
-	float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };	// red,green,blue,alpha
-	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
-	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
 	XMMATRIX view = currentCamera->GetViewMatrix();
 	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
     // Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
+
+	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _shadowMapStencil);
+	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	for (int i = 0; i < gameObjects.size(); i++) {
+		//Set position
+		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
+
+		//Set constant buffer
+		ConstantBuffer cb;
+
+		cb.mWorld = XMMatrixTranspose(world);
+		cb.mView = XMMatrixTranspose(view);
+		cb.mProjection = XMMatrixTranspose(projection);
+
+		cb.gTime = _time;
+		cb.mEyePosW = currentCamera->GetEye();
+
+		Material* m = gameObjects[i]->GetMaterial();
+		cb.mLightDirection = m->lightDirection;
+		cb.mDiffuseMaterial = m->diffuseMaterial;
+		cb.mDiffuseLight = m->diffuseLight;
+		cb.mAmbientMaterial = m->ambientMaterial;
+		cb.mAmbientLight = m->ambientLight;
+		cb.mSpecularMaterial = m->specularMaterial;
+		cb.mSpecularLight = m->specularLight;
+		cb.mSpecularPower = m->specularPower;
+
+		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
+
+		//Set blend state
+		float blendFactor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
+		if (gameObjects[i]->GetShaderType() == ShaderType::WATER)
+			_pImmediateContext->OMSetBlendState(_transparency, blendFactor, 0xffffffff);
+		else
+			_pImmediateContext->OMSetBlendState(0, 0, 0xffffffff);
+
+		//Set shader
+		Shader* s = shaders[gameObjects[i]->GetShaderType()];
+		_pImmediateContext->VSSetShader(s->GetVertexShader(), nullptr, 0);
+		_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
+		_pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
+		_pImmediateContext->PSSetShader(s->GetPixelShader(), nullptr, 0);
+
+		//Set texture
+		ID3D11SamplerState* samp = s->GetSampler();
+		_pImmediateContext->PSSetSamplers(0, 1, &samp);
+		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
+		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
+		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
+
+		//Set vertex and index buffer
+		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);
+		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+		//Draw
+		_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
+	}
+
+	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
+	float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };	// red,green,blue,alpha
+	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
+	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
 
 	//Render GameObjects
 	for (int i = 0; i < gameObjects.size(); i++) {
@@ -441,7 +499,7 @@ void Application::Draw() {
 		//Set texture
 		ID3D11SamplerState* samp = s->GetSampler();
 		_pImmediateContext->PSSetSamplers(0, 1, &samp);
-		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
+		_pImmediateContext->PSSetShaderResources(0, 1, &_shadowMapRV);
 		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
 		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
 
