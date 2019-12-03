@@ -205,6 +205,87 @@ HRESULT Application::InitDevice() {
 
     _pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 
+	//Set up shadow map			https://docs.microsoft.com/en-us/windows/uwp/gaming/create-depth-buffer-resource--view--and-sampler-state
+	D3D11_TEXTURE2D_DESC shadowMapDesc;
+	ZeroMemory(&shadowMapDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	shadowMapDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
+	shadowMapDesc.MipLevels = 1;
+	shadowMapDesc.ArraySize = 1;
+	shadowMapDesc.SampleDesc.Count = 1;
+	shadowMapDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
+	shadowMapDesc.Height = static_cast<UINT>(SHADOW_MAP_SIZE);
+	shadowMapDesc.Width = static_cast<UINT>(SHADOW_MAP_SIZE);
+
+	hr = _pd3dDevice->CreateTexture2D(&shadowMapDesc, nullptr, &shadowMap);
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
+	ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Texture2D.MipSlice = 0;
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
+	ZeroMemory(&shaderResourceViewDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
+	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
+	shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
+	shaderResourceViewDesc.Texture2D.MipLevels = 1;
+
+	hr = _pd3dDevice->CreateDepthStencilView(shadowMap, &depthStencilViewDesc, &shadowDepthView);
+
+	hr = _pd3dDevice->CreateShaderResourceView(shadowMap, &shaderResourceViewDesc, &shadowResourceView);
+
+	D3D11_SAMPLER_DESC comparisonSamplerDesc;
+	ZeroMemory(&comparisonSamplerDesc, sizeof(D3D11_SAMPLER_DESC));
+	comparisonSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
+	comparisonSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
+	comparisonSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
+	comparisonSamplerDesc.BorderColor[0] = 1.0f;
+	comparisonSamplerDesc.BorderColor[1] = 1.0f;
+	comparisonSamplerDesc.BorderColor[2] = 1.0f;
+	comparisonSamplerDesc.BorderColor[3] = 1.0f;
+	comparisonSamplerDesc.MinLOD = 0.f;
+	comparisonSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	comparisonSamplerDesc.MipLODBias = 0.f;
+	comparisonSamplerDesc.MaxAnisotropy = 0;
+	comparisonSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	comparisonSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
+
+	hr = _pd3dDevice->CreateSamplerState(&comparisonSamplerDesc, &comparisonSampler);
+
+	D3D11_RASTERIZER_DESC shadowRenderStateDesc;
+	ZeroMemory(&shadowRenderStateDesc, sizeof(D3D11_RASTERIZER_DESC));
+	shadowRenderStateDesc.CullMode = D3D11_CULL_FRONT;
+	shadowRenderStateDesc.FillMode = D3D11_FILL_SOLID;
+	shadowRenderStateDesc.DepthClipEnable = true;
+
+	hr = _pd3dDevice->CreateRasterizerState(&shadowRenderStateDesc, &shadowRenderState);
+
+	D3D11_BUFFER_DESC shadowBufferDesc;
+	ZeroMemory(&shadowBufferDesc, sizeof(shadowBufferDesc));
+	shadowBufferDesc.Usage = D3D11_USAGE_DEFAULT;
+	shadowBufferDesc.ByteWidth = sizeof(ShadowConstantBuffer);
+	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+	shadowBufferDesc.CPUAccessFlags = 0;
+	hr = _pd3dDevice->CreateBuffer(&shadowBufferDesc, nullptr, &shadowConstantBuffer);
+
+	XMMATRIX lightOrthographicMatrix = XMMatrixOrthographicRH(300, 300, 0.1f, 300.0f);
+	XMStoreFloat4x4(&scb.projection, XMMatrixTranspose(lightOrthographicMatrix));
+
+	static const XMVECTORF32 lightEye = { 60.0f, 60.0f, 70.0f, 0.0f };
+	static const XMVECTORF32 lightAt = { 0.0f, 0.0f, 0.0f, 0.0f };
+	static const XMVECTORF32 lightUp = { 0.0f, 1.0f, 0.0f, 0.0f };
+	XMStoreFloat4x4(&scb.view, XMMatrixTranspose(XMMatrixLookAtRH(lightEye, lightAt, lightUp)));
+
+	XMStoreFloat4(&scb.pos, lightEye);
+
+	_pImmediateContext->UpdateSubresource(shadowConstantBuffer, 0, NULL, &scb, 0, 0);
+
+	ZeroMemory(&shadowViewport, sizeof(D3D11_VIEWPORT));
+	shadowViewport.Height = SHADOW_MAP_SIZE;
+	shadowViewport.Width = SHADOW_MAP_SIZE;
+	shadowViewport.MinDepth = 0.0f;
+	shadowViewport.MaxDepth = 1.0f;
+
     // Setup the viewport
     D3D11_VIEWPORT vp;
     vp.Width = (FLOAT)_WindowWidth;
@@ -355,77 +436,11 @@ void Application::Update() {
 }
 
 void Application::Draw() {
-<<<<<<< HEAD
-=======
-    // Clear the back buffer
-    float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f};	// red,green,blue,alpha
-    _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
-	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
->>>>>>> parent of 1d242f9... Not much progress tbh
 	XMMATRIX view = currentCamera->GetViewMatrix();
 	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
     // Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
-
-	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _shadowMapStencil);
-	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	for (int i = 0; i < gameObjects.size(); i++) {
-		//Set position
-		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
-
-		//Set constant buffer
-		ConstantBuffer cb;
-
-		cb.mWorld = XMMatrixTranspose(world);
-		cb.mView = XMMatrixTranspose(view);
-		cb.mProjection = XMMatrixTranspose(projection);
-
-		cb.gTime = _time;
-		cb.mEyePosW = currentCamera->GetEye();
-
-		Material* m = gameObjects[i]->GetMaterial();
-		cb.mLightDirection = m->lightDirection;
-		cb.mDiffuseMaterial = m->diffuseMaterial;
-		cb.mDiffuseLight = m->diffuseLight;
-		cb.mAmbientMaterial = m->ambientMaterial;
-		cb.mAmbientLight = m->ambientLight;
-		cb.mSpecularMaterial = m->specularMaterial;
-		cb.mSpecularLight = m->specularLight;
-		cb.mSpecularPower = m->specularPower;
-
-		_pImmediateContext->UpdateSubresource(_pConstantBuffer, 0, nullptr, &cb, 0, 0);
-
-		//Set blend state
-		float blendFactor[] = { 0.5f, 0.5f, 0.5f, 1.0f };
-		if (gameObjects[i]->GetShaderType() == ShaderType::WATER)
-			_pImmediateContext->OMSetBlendState(_transparency, blendFactor, 0xffffffff);
-		else
-			_pImmediateContext->OMSetBlendState(0, 0, 0xffffffff);
-
-		//Set shader
-		Shader* s = shaders[gameObjects[i]->GetShaderType()];
-		_pImmediateContext->VSSetShader(s->GetVertexShader(), nullptr, 0);
-		_pImmediateContext->VSSetConstantBuffers(0, 1, &_pConstantBuffer);
-		_pImmediateContext->PSSetConstantBuffers(0, 1, &_pConstantBuffer);
-		_pImmediateContext->PSSetShader(s->GetPixelShader(), nullptr, 0);
-
-		//Set texture
-		ID3D11SamplerState* samp = s->GetSampler();
-		_pImmediateContext->PSSetSamplers(0, 1, &samp);
-		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
-		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
-		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
-
-		//Set vertex and index buffer
-		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);
-		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-		//Draw
-		_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
-	}
 
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 	float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };	// red,green,blue,alpha
@@ -476,7 +491,7 @@ void Application::Draw() {
 		//Set texture
 		ID3D11SamplerState* samp = s->GetSampler();
 		_pImmediateContext->PSSetSamplers(0, 1, &samp);
-		_pImmediateContext->PSSetShaderResources(0, 1, &_shadowMapRV);
+		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
 		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
 		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
 

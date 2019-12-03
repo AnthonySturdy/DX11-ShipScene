@@ -21,6 +21,8 @@
 
 using namespace DirectX;
 
+#define SHADOW_MAP_SIZE 2048
+
 class Application
 {
 private:
@@ -42,6 +44,17 @@ private:
 	ID3D11BlendState*		_transparency;
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
+
+	//Shadow mapping
+	ID3D11Texture2D* shadowMap;
+	ID3D11DepthStencilView* shadowDepthView;
+	ID3D11ShaderResourceView* shadowResourceView;
+	ID3D11SamplerState* comparisonSampler;
+	ID3D11RasterizerState* shadowRenderState;
+	ID3D11Buffer* shadowConstantBuffer;
+	ShadowConstantBuffer scb;
+	D3D11_VIEWPORT shadowViewport;
+
 	Camera* currentCamera = nullptr;
 	std::vector<Camera*> cameras;
 	std::vector<Shader*> shaders;
