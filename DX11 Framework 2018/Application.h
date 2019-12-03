@@ -38,18 +38,16 @@ private:
 	XMFLOAT4X4              _projection;
 	ID3D11DepthStencilView* _depthStencilView;
 	ID3D11Texture2D*		_depthStencilBuffer;
+	ID3D11ShaderResourceView* _depthRV;
 	ID3D11BlendState*		_transparency;
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
-	ID3D11Texture2D*		_shadowMapTexture;
-	ID3D11DepthStencilView* _shadowMapStencil;
-	ID3D11ShaderResourceView* _shadowMapRV;
-
 	Camera* currentCamera = nullptr;
 	std::vector<Camera*> cameras;
 	std::vector<Shader*> shaders;
 	std::vector<GameObject*> gameObjects;
 	SceneGraph* hierarchy;
+
 	ShipController* shipController = nullptr;
 
 	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)

@@ -65,8 +65,5 @@
     <None Include="No Light Shader.fx">
       <Filter>Shaders</Filter>
     </None>
-    <None Include="Shadow Map Shader.fx">
-      <Filter>Shaders</Filter>
-    </None>
   </ItemGroup>
 </Project>

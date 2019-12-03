@@ -205,37 +205,6 @@ HRESULT Application::InitDevice() {
 
     _pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 
-	//Set up shadow map
-	D3D11_TEXTURE2D_DESC shadowTexDesc;
-	shadowTexDesc.Width = _WindowWidth;
-	shadowTexDesc.Height = _WindowHeight;
-	shadowTexDesc.MipLevels = 1;
-	shadowTexDesc.ArraySize = 1;
-	shadowTexDesc.Format = DXGI_FORMAT_R32_TYPELESS;
-	shadowTexDesc.SampleDesc.Count = 1;
-	shadowTexDesc.SampleDesc.Quality = 0;
-	shadowTexDesc.Usage = D3D11_USAGE_DEFAULT;
-	shadowTexDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL | D3D11_BIND_SHADER_RESOURCE;
-	shadowTexDesc.CPUAccessFlags = 0;
-	shadowTexDesc.MiscFlags = 0;
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC shadowDsv;
-	shadowDsv.Format = DXGI_FORMAT_D32_FLOAT;
-	shadowDsv.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	shadowDsv.Texture2D.MipSlice = 0;
-	shadowDsv.Flags = 0;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shadowSrv;
-	shadowSrv.Format = DXGI_FORMAT_R32_FLOAT;
-	shadowSrv.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shadowSrv.Texture2D.MipLevels = shadowTexDesc.MipLevels;
-	shadowSrv.Texture2D.MostDetailedMip = 0;
-
-	hr = _pd3dDevice->CreateTexture2D(&shadowTexDesc, nullptr, &_shadowMapTexture);
-	hr = _pd3dDevice->CreateDepthStencilView(_shadowMapTexture, &shadowDsv, &_shadowMapStencil);
-	hr = _pd3dDevice->CreateShaderResourceView(_shadowMapTexture, &shadowSrv, &_shadowMapRV);
-
-
     // Setup the viewport
     D3D11_VIEWPORT vp;
     vp.Width = (FLOAT)_WindowWidth;
@@ -386,6 +355,14 @@ void Application::Update() {
 }
 
 void Application::Draw() {
+<<<<<<< HEAD
+=======
+    // Clear the back buffer
+    float ClearColor[4] = {0.0f, 0.125f, 0.3f, 1.0f};	// red,green,blue,alpha
+    _pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);
+	_pImmediateContext->ClearDepthStencilView(_depthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+>>>>>>> parent of 1d242f9... Not much progress tbh
 	XMMATRIX view = currentCamera->GetViewMatrix();
 	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
