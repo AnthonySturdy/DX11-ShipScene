@@ -44,6 +44,7 @@ private:
 	ID3D11BlendState*		_transparency;
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
+	D3D11_VIEWPORT			vp;
 
 	//Shadow mapping
 	ID3D11Texture2D* shadowMap;

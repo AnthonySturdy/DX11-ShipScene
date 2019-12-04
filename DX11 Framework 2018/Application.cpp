@@ -288,7 +288,6 @@ HRESULT Application::InitDevice() {
 	shadowViewport.MaxDepth = 1.0f;
 
     // Setup the viewport
-    D3D11_VIEWPORT vp;
     vp.Width = (FLOAT)_WindowWidth;
     vp.Height = (FLOAT)_WindowHeight;
     vp.MinDepth = 0.0f;
@@ -441,9 +440,6 @@ void Application::Draw() {
 	XMMATRIX view = currentCamera->GetViewMatrix();
 	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
-    // Set Render state
-	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
-
 	//SHADOW RENDER
 	//Clear Shadow Buffer
 	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::BlanchedAlmond);
@@ -461,7 +457,7 @@ void Application::Draw() {
 	_pImmediateContext->VSSetShader(shader->GetVertexShader(), nullptr, 0);
 	_pImmediateContext->VSSetConstantBuffers(0, 1, &shadowConstantBuffer);
 	_pImmediateContext->PSSetConstantBuffers(0, 1, &shadowConstantBuffer);
-	_pImmediateContext->PSSetShader(shader->GetPixelShader(), nullptr, 0);
+	_pImmediateContext->PSSetShader(nullptr, nullptr, 0);
 
 	for (int i = 0; i < gameObjects.size(); i++) {
 		//Set position
@@ -475,12 +471,17 @@ void Application::Draw() {
 		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
 
 		//Draw
-		if(gameObjects[i]->GetShaderType() != ShaderType::NO_LIGHT)
+		if(gameObjects[i]->GetShaderType() != ShaderType::NO_LIGHT || gameObjects[i]->GetShaderType() != ShaderType::WATER)
 			_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
 	}
 
-
 	//NORMAL RENDER
+	// Set Render state
+	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
+	
+	//Set viewport
+	_pImmediateContext->RSSetViewports(1, &vp);
+
 	//Clear Render Buffers
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 	float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };	// red,green,blue,alpha
@@ -531,7 +532,7 @@ void Application::Draw() {
 		//Set texture
 		ID3D11SamplerState* samp = s->GetSampler();
 		_pImmediateContext->PSSetSamplers(0, 1, &samp);
-		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
+		_pImmediateContext->PSSetShaderResources(0, 1, &shadowResourceView);
 		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
 		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
 

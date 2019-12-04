@@ -16,9 +16,6 @@ cbuffer ConstantBuffer : register( b0 )
 struct PS_INPUT
 {
     float4 Pos : SV_POSITION;
-    float3 Norm : NORMAL0;
-	float3 eyePos : POSITION0;
-	float2 Tex : TEXCOORD0;
 };
 
 //Vertex Shader
@@ -26,7 +23,10 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 {
     PS_INPUT output = (PS_INPUT)0;
 
-	
+	// Transform the vertex position into projected space.
+	output.Pos = mul(Pos, World);
+	output.Pos = mul(output.Pos, View);
+	output.Pos = mul(output.Pos, Projection);
 
     return output;
 }
@@ -35,6 +35,5 @@ PS_INPUT VS( float4 Pos : POSITION, float3 NormalL : NORMAL, float2 Tex : TEXCOO
 //Pixel Shader - not used
 float4 PS(PS_INPUT input) : SV_Target
 {
-	discard;
-	return float4(1.0f, 0.0f, 1.0f, 1.0f);
+	return float4(input.Pos.w, input.Pos.w, input.Pos.w, input.Pos.w);
 }
