@@ -72,6 +72,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Water Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Land Under Water Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
+	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Shadow Map Shader.fx"));
 
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
@@ -269,12 +270,12 @@ HRESULT Application::InitDevice() {
 	hr = _pd3dDevice->CreateBuffer(&shadowBufferDesc, nullptr, &shadowConstantBuffer);
 
 	XMMATRIX lightOrthographicMatrix = XMMatrixOrthographicRH(300, 300, 0.1f, 300.0f);
-	XMStoreFloat4x4(&scb.projection, XMMatrixTranspose(lightOrthographicMatrix));
+	scb.projection = XMMatrixTranspose(lightOrthographicMatrix);
 
 	static const XMVECTORF32 lightEye = { 60.0f, 60.0f, 70.0f, 0.0f };
 	static const XMVECTORF32 lightAt = { 0.0f, 0.0f, 0.0f, 0.0f };
 	static const XMVECTORF32 lightUp = { 0.0f, 1.0f, 0.0f, 0.0f };
-	XMStoreFloat4x4(&scb.view, XMMatrixTranspose(XMMatrixLookAtRH(lightEye, lightAt, lightUp)));
+	scb.view = XMMatrixTranspose(XMMatrixLookAtRH(lightEye, lightAt, lightUp));
 
 	XMStoreFloat4(&scb.pos, lightEye);
 
@@ -436,12 +437,51 @@ void Application::Update() {
 }
 
 void Application::Draw() {
+	//Set current view and projection matrices
 	XMMATRIX view = currentCamera->GetViewMatrix();
 	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
     // Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
 
+	//SHADOW RENDER
+	//Clear Shadow Buffer
+	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::BlanchedAlmond);
+	_pImmediateContext->ClearDepthStencilView(shadowDepthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+
+	//Only bind the depth stencil for output
+	_pImmediateContext->OMSetRenderTargets(0, nullptr, shadowDepthView);
+
+	//Set shadow rendering state
+	_pImmediateContext->RSSetState(shadowRenderState);
+	_pImmediateContext->RSSetViewports(1, &shadowViewport);
+
+	//Set Shader
+	Shader* shader = shaders[ShaderType::SHADOW_MAP];
+	_pImmediateContext->VSSetShader(shader->GetVertexShader(), nullptr, 0);
+	_pImmediateContext->VSSetConstantBuffers(0, 1, &shadowConstantBuffer);
+	_pImmediateContext->PSSetConstantBuffers(0, 1, &shadowConstantBuffer);
+	_pImmediateContext->PSSetShader(shader->GetPixelShader(), nullptr, 0);
+
+	for (int i = 0; i < gameObjects.size(); i++) {
+		//Set position
+		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
+
+		//Set constant buffer
+		scb.world = XMMatrixTranspose(world);
+
+		//Set vertex and index buffer
+		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);
+		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
+
+		//Draw
+		if(gameObjects[i]->GetShaderType() != ShaderType::NO_LIGHT)
+			_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
+	}
+
+
+	//NORMAL RENDER
+	//Clear Render Buffers
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 	float ClearColor[4] = { 0.0f, 0.125f, 0.3f, 1.0f };	// red,green,blue,alpha
 	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, ClearColor);

@@ -10,8 +10,6 @@
 #include "vector3.h"
 #include "json.hpp"	//https://github.com/nlohmann/json
 
-#include <iostream> //DELETE THIS
-
 using json = nlohmann::json;
 
 class SceneGraph {

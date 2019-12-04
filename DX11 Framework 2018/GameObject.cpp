@@ -1,6 +1,6 @@
 #include "GameObject.h"
 
-GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos, vector3 initRot, vector3 initScale, Material _material, ShaderType _shaderType) {
+GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring textureDir, vector3 initPos, vector3 initRot, vector3 initScale, Material _material, ShaderType _shaderType, bool _castShadows) {
 	//Load model into MeshData
 	if(modelDir != "")	//modelDir is set to "" when object is a plane, so we don't need to load a mesh
 		mesh = OBJLoader::Load(const_cast<char*>(modelDir.c_str()), _device);	//Takes char* not const char* so did a const_cast
@@ -22,6 +22,9 @@ GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring
 
 	//Set shader type
 	shaderType = _shaderType;
+
+	//Set whether the object casts shadows
+	castShadows = _castShadows;
 
 	UpdateWorldMatrix();
 }
@@ -79,6 +82,10 @@ ID3D11ShaderResourceView** GameObject::GetSpecularTexture() {
 
 ShaderType GameObject::GetShaderType() {
 	return shaderType;
+}
+
+bool GameObject::GetCastShadows() {
+	return castShadows;
 }
 
 void GameObject::SetPosition(vector3 newPos) {
