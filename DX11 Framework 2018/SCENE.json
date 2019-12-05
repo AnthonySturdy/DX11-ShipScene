@@ -278,9 +278,9 @@
       "TextureDirectory": "Textures/skybox.dds",
       "ShaderType": 4,
       "Scale": {
-        "x": 350,
-        "y": 350,
-        "z": 350
+        "x": 600,
+        "y": 600,
+        "z": 600
       }
     }
   }

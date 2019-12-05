@@ -12,6 +12,10 @@ Camera::Camera(XMFLOAT3 _position, XMFLOAT3 _at, XMFLOAT3 _up, float _windowWidt
 	Update();
 }
 
+Camera::~Camera() {
+
+}
+
 void Camera::Update() {
 	XMVECTOR e = { eye.x, eye.y, eye.z };
 	XMVECTOR a = { at.x, at.y, at.z };

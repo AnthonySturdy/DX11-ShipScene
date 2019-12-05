@@ -61,9 +61,9 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
 	srand(time(NULL));
 
 	//Initialise cameras
-	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
-	cameras.push_back(new Camera(XMFLOAT3(40.0f, 40.0f, 50.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
-	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 300.0f));
+	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));
+	cameras.push_back(new Camera(XMFLOAT3(40.0f, 40.0f, 50.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));
+	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));
 	currentCamera = cameras[0];
 
 	//Initialise Shaders
@@ -72,7 +72,6 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Water Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Land Under Water Shader.fx"));
 	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"No Light Shader.fx"));
-	shaders.push_back(new Shader(_pd3dDevice, _pImmediateContext, L"Shadow Map Shader.fx"));
 
 	// Initialize the world matrix
 	XMStoreFloat4x4(&_world, XMMatrixIdentity());
@@ -110,9 +109,9 @@ HRESULT Application::InitWindow(HINSTANCE hInstance, int nCmdShow) {
 
     // Create window
     _hInst = hInstance;
-    RECT rc = {0, 0, 1280, 720};
+    RECT rc = {0, 0, 1600, 900};
     AdjustWindowRect(&rc, WS_OVERLAPPEDWINDOW, FALSE);
-    _hWnd = CreateWindow(L"TutorialWindowClass", L"DX11 Scene // Anthony Sturdy", WS_OVERLAPPEDWINDOW,
+    _hWnd = CreateWindow(L"TutorialWindowClass", L"DX11 Ship Scene // Anthony Sturdy", WS_OVERLAPPEDWINDOW,
                          CW_USEDEFAULT, CW_USEDEFAULT, rc.right - rc.left, rc.bottom - rc.top, nullptr, nullptr, hInstance,
                          nullptr);
     if (!_hWnd)
@@ -206,87 +205,6 @@ HRESULT Application::InitDevice() {
 
     _pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 
-	//Set up shadow map			https://docs.microsoft.com/en-us/windows/uwp/gaming/create-depth-buffer-resource--view--and-sampler-state
-	D3D11_TEXTURE2D_DESC shadowMapDesc;
-	ZeroMemory(&shadowMapDesc, sizeof(D3D11_TEXTURE2D_DESC));
-	shadowMapDesc.Format = DXGI_FORMAT_R24G8_TYPELESS;
-	shadowMapDesc.MipLevels = 1;
-	shadowMapDesc.ArraySize = 1;
-	shadowMapDesc.SampleDesc.Count = 1;
-	shadowMapDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE | D3D11_BIND_DEPTH_STENCIL;
-	shadowMapDesc.Height = static_cast<UINT>(SHADOW_MAP_SIZE);
-	shadowMapDesc.Width = static_cast<UINT>(SHADOW_MAP_SIZE);
-
-	hr = _pd3dDevice->CreateTexture2D(&shadowMapDesc, nullptr, &shadowMap);
-
-	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc;
-	ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
-	depthStencilViewDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
-	depthStencilViewDesc.Texture2D.MipSlice = 0;
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc;
-	ZeroMemory(&shaderResourceViewDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.Format = DXGI_FORMAT_R24_UNORM_X8_TYPELESS;
-	shaderResourceViewDesc.Texture2D.MipLevels = 1;
-
-	hr = _pd3dDevice->CreateDepthStencilView(shadowMap, &depthStencilViewDesc, &shadowDepthView);
-
-	hr = _pd3dDevice->CreateShaderResourceView(shadowMap, &shaderResourceViewDesc, &shadowResourceView);
-
-	D3D11_SAMPLER_DESC comparisonSamplerDesc;
-	ZeroMemory(&comparisonSamplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	comparisonSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	comparisonSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	comparisonSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	comparisonSamplerDesc.BorderColor[0] = 1.0f;
-	comparisonSamplerDesc.BorderColor[1] = 1.0f;
-	comparisonSamplerDesc.BorderColor[2] = 1.0f;
-	comparisonSamplerDesc.BorderColor[3] = 1.0f;
-	comparisonSamplerDesc.MinLOD = 0.f;
-	comparisonSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	comparisonSamplerDesc.MipLODBias = 0.f;
-	comparisonSamplerDesc.MaxAnisotropy = 0;
-	comparisonSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	comparisonSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-
-	hr = _pd3dDevice->CreateSamplerState(&comparisonSamplerDesc, &comparisonSampler);
-
-	D3D11_RASTERIZER_DESC shadowRenderStateDesc;
-	ZeroMemory(&shadowRenderStateDesc, sizeof(D3D11_RASTERIZER_DESC));
-	shadowRenderStateDesc.CullMode = D3D11_CULL_FRONT;
-	shadowRenderStateDesc.FillMode = D3D11_FILL_SOLID;
-	shadowRenderStateDesc.DepthClipEnable = true;
-
-	hr = _pd3dDevice->CreateRasterizerState(&shadowRenderStateDesc, &shadowRenderState);
-
-	D3D11_BUFFER_DESC shadowBufferDesc;
-	ZeroMemory(&shadowBufferDesc, sizeof(shadowBufferDesc));
-	shadowBufferDesc.Usage = D3D11_USAGE_DEFAULT;
-	shadowBufferDesc.ByteWidth = sizeof(ShadowConstantBuffer);
-	shadowBufferDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-	shadowBufferDesc.CPUAccessFlags = 0;
-	hr = _pd3dDevice->CreateBuffer(&shadowBufferDesc, nullptr, &shadowConstantBuffer);
-
-	XMMATRIX lightOrthographicMatrix = XMMatrixOrthographicRH(300, 300, 0.1f, 300.0f);
-	scb.projection = XMMatrixTranspose(lightOrthographicMatrix);
-
-	static const XMVECTORF32 lightEye = { 60.0f, 60.0f, 70.0f, 0.0f };
-	static const XMVECTORF32 lightAt = { 0.0f, 0.0f, 0.0f, 0.0f };
-	static const XMVECTORF32 lightUp = { 0.0f, 1.0f, 0.0f, 0.0f };
-	scb.view = XMMatrixTranspose(XMMatrixLookAtRH(lightEye, lightAt, lightUp));
-
-	XMStoreFloat4(&scb.pos, lightEye);
-
-	_pImmediateContext->UpdateSubresource(shadowConstantBuffer, 0, NULL, &scb, 0, 0);
-
-	ZeroMemory(&shadowViewport, sizeof(D3D11_VIEWPORT));
-	shadowViewport.Height = SHADOW_MAP_SIZE;
-	shadowViewport.Width = SHADOW_MAP_SIZE;
-	shadowViewport.MinDepth = 0.0f;
-	shadowViewport.MaxDepth = 1.0f;
-
     // Setup the viewport
     vp.Width = (FLOAT)_WindowWidth;
     vp.Height = (FLOAT)_WindowHeight;
@@ -350,16 +268,29 @@ HRESULT Application::InitDevice() {
 }
 
 void Application::Cleanup() {
-    if (_pImmediateContext) _pImmediateContext->ClearState();
-    if (_pConstantBuffer) _pConstantBuffer->Release();
-    if (_pRenderTargetView) _pRenderTargetView->Release();
-    if (_pSwapChain) _pSwapChain->Release();
-    if (_pImmediateContext) _pImmediateContext->Release();
-    if (_pd3dDevice) _pd3dDevice->Release();
-	if (_depthStencilView) _depthStencilView->Release();
-	if (_depthStencilBuffer) _depthStencilBuffer->Release();
-	if (_wireFrameRenderState) _wireFrameRenderState->Release();
-	if (_transparency) _transparency->Release();
+	for (int i = 0; i < cameras.size(); i++) {
+		delete cameras[i];
+	}
+
+	for (int i = 0; i < shaders.size(); i++) {
+		delete shaders[i];
+	}
+
+	delete hierarchy;
+	delete shipController;
+
+	if (_pd3dDevice)_pd3dDevice->Release();	
+	if (_pImmediateContext)_pImmediateContext->ClearState();
+	if (_pSwapChain)_pSwapChain->Release();	
+	if (_pRenderTargetView)_pRenderTargetView->Release();
+	if (_pConstantBuffer)_pConstantBuffer->Release();
+	if (_depthStencilView)_depthStencilView->Release();
+	if (_depthStencilBuffer)_depthStencilBuffer->Release();	
+	if (_transparency)_transparency->Release();
+	if (_wireFrameRenderState)_wireFrameRenderState->Release();
+	if (_solidRenderState)_solidRenderState->Release();
+
+	
 }
 
 void Application::Update() {
@@ -424,6 +355,25 @@ void Application::Update() {
 	if (GetAsyncKeyState(VK_RIGHT)) {
 		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y - 0.03f, camPosParentObject->GetRotation()->z));
 	}
+	if (GetAsyncKeyState(VK_UP)) {
+		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x + 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
+		if (camPosParentObject->GetRotation()->x > 45) {
+			camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x - 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
+		}
+	}
+	if (GetAsyncKeyState(VK_DOWN)) {
+		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x - 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
+		if (camPosParentObject->GetRotation()->x < -25) {
+			camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x + 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
+		}
+	}
+	if (GetAsyncKeyState(0x51)) {
+		camPosObject->SetPosition(vector3(camPosObject->GetPosition()->x, camPosObject->GetPosition()->y, camPosObject->GetPosition()->z + 0.005f));
+	}
+	if (GetAsyncKeyState(0x45)) {
+		camPosObject->SetPosition(vector3(camPosObject->GetPosition()->x, camPosObject->GetPosition()->y, camPosObject->GetPosition()->z - 0.005f));
+	}
+
 
 	currentCamera->Update();
 	_time = t;
@@ -440,42 +390,6 @@ void Application::Draw() {
 	XMMATRIX view = currentCamera->GetViewMatrix();
 	XMMATRIX projection = currentCamera->GetProjectionMatrix();
 
-	//SHADOW RENDER
-	//Clear Shadow Buffer
-	_pImmediateContext->ClearRenderTargetView(_pRenderTargetView, DirectX::Colors::BlanchedAlmond);
-	_pImmediateContext->ClearDepthStencilView(shadowDepthView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
-
-	//Only bind the depth stencil for output
-	_pImmediateContext->OMSetRenderTargets(0, nullptr, shadowDepthView);
-
-	//Set shadow rendering state
-	_pImmediateContext->RSSetState(shadowRenderState);
-	_pImmediateContext->RSSetViewports(1, &shadowViewport);
-
-	//Set Shader
-	Shader* shader = shaders[ShaderType::SHADOW_MAP];
-	_pImmediateContext->VSSetShader(shader->GetVertexShader(), nullptr, 0);
-	_pImmediateContext->VSSetConstantBuffers(0, 1, &shadowConstantBuffer);
-	_pImmediateContext->PSSetConstantBuffers(0, 1, &shadowConstantBuffer);
-	_pImmediateContext->PSSetShader(nullptr, nullptr, 0);
-
-	for (int i = 0; i < gameObjects.size(); i++) {
-		//Set position
-		XMMATRIX world = XMLoadFloat4x4(gameObjects[i]->GetWorldMatrix());		//Convert XMFloat4x4 to XMMATRIX object
-
-		//Set constant buffer
-		scb.world = XMMatrixTranspose(world);
-
-		//Set vertex and index buffer
-		_pImmediateContext->IASetVertexBuffers(0, 1, &gameObjects[i]->GetMesh()->VertexBuffer, &gameObjects[i]->GetMesh()->VBStride, &gameObjects[i]->GetMesh()->VBOffset);
-		_pImmediateContext->IASetIndexBuffer(gameObjects[i]->GetMesh()->IndexBuffer, DXGI_FORMAT_R16_UINT, 0);
-
-		//Draw
-		if(gameObjects[i]->GetShaderType() != ShaderType::NO_LIGHT || gameObjects[i]->GetShaderType() != ShaderType::WATER)
-			_pImmediateContext->DrawIndexed(gameObjects[i]->GetMesh()->IndexCount, 0, 0);
-	}
-
-	//NORMAL RENDER
 	// Set Render state
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
 	
@@ -532,7 +446,7 @@ void Application::Draw() {
 		//Set texture
 		ID3D11SamplerState* samp = s->GetSampler();
 		_pImmediateContext->PSSetSamplers(0, 1, &samp);
-		_pImmediateContext->PSSetShaderResources(0, 1, &shadowResourceView);
+		_pImmediateContext->PSSetShaderResources(0, 1, gameObjects[i]->GetDiffuseTexture());
 		_pImmediateContext->PSSetShaderResources(1, 1, gameObjects[i]->GetNormalTexture());
 		_pImmediateContext->PSSetShaderResources(2, 1, gameObjects[i]->GetSpecularTexture());
 

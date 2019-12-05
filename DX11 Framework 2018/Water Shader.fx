@@ -94,9 +94,14 @@ float4 PS(PS_INPUT input) : SV_Target
 	//Texture colour
 	float4 texCol = txDiffuse.Sample(samLinear, input.Tex);
 
+	float dist = input.Pos.z / input.Pos.w;		//Distance to pixel being rendered
+	float4 fogCol = float4(0.48f, 0.7f, 0.94f, 1.0f);		//Colour of fog
+
 	float4 outCol;
 	outCol.rgb = texCol + ambient + diffuse + specular;
 	outCol.a = 1.0f;
 
-	return outCol;
+	outCol = lerp(fogCol, outCol, saturate(dist * 30));	//Interpolate from output colour to fog colour based on distance
+
+	return saturate(outCol);
 }

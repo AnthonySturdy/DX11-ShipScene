@@ -30,12 +30,9 @@ GameObject::GameObject(ID3D11Device* _device, std::string modelDir, std::wstring
 }
 
 GameObject::~GameObject() {
-	delete diffuseTex;
-	diffuseTex = nullptr;
-	delete normalTex;
-	normalTex = nullptr;
-	delete specularTex;
-	specularTex = nullptr;
+	if(diffuseTex) diffuseTex->Release();
+	if (normalTex) normalTex->Release();
+	if (specularTex) specularTex->Release();
 }
 
 std::wstring GameObject::AddSuffixBeforeExtension(std::wstring str, std::wstring suffix, std::wstring extension) {

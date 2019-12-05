@@ -93,9 +93,14 @@ float4 PS(PS_INPUT input) : SV_Target
 
 	clip(texCol.a-0.15f);
 
+	float dist = input.Pos.z / input.Pos.w;		//Distance to pixel being rendered
+	float4 fogCol = float4(0.8f, 0.8f, 0.8f, 1.0f);		//Colour of fog
+
 	float4 outCol;
 	outCol.rgb = texCol + ambient + diffuse + specular;
 	outCol.a = DiffuseMtrl.a;
 
-	return outCol;
+	outCol = lerp(fogCol, outCol, saturate(dist * 25));	//Interpolate from output colour to fog colour based on distance
+
+	return saturate(outCol);
 }
