@@ -84,7 +84,7 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
 
 	//Load scene from json file
 	hierarchy = new SceneGraph("SCENE.json", _pd3dDevice);
-	shipController = new ShipController(hierarchy->GetBase()->children[0]->gameObject);
+	shipController = new ShipController(hierarchy->GetBase()->children[1]->gameObject);
 
 	return S_OK;
 }
@@ -342,8 +342,8 @@ void Application::Update() {
 	hierarchy->GetBase()->UpdateTransformation(&gameObjects);	
 
 	//Camera control
-	GameObject* camPosParentObject = hierarchy->GetBase()->children[0]->children[0]->gameObject;
-	GameObject* camPosObject = hierarchy->GetBase()->children[0]->children[0]->children[0]->gameObject;		// Hierarchy base->Ship->Camera Parent (for rotation)->Child (camPos object)
+	GameObject* camPosParentObject = hierarchy->GetBase()->children[1]->children[0]->gameObject;
+	GameObject* camPosObject = hierarchy->GetBase()->children[1]->children[0]->children[0]->gameObject;		// Hierarchy base->Ship->Camera Parent (for rotation)->Child (camPos object)
 	XMFLOAT4X4* camPosViewMatrix = camPosObject->GetWorldMatrix();	
 	vector3 camPos(camPosViewMatrix->_41, camPosViewMatrix->_42, camPosViewMatrix->_43);	//Have to access matrix to get actual position after other transformations (such as rotation and scaling)
 	vector3 camLookAt = *shipController->GetShip()->GetPosition();
@@ -379,7 +379,7 @@ void Application::Update() {
 	_time = t;
 
 	// Set Skybox Position
-	hierarchy->GetBase()->children[5]->gameObject->SetPosition(vector3(
+	hierarchy->GetBase()->children[6]->gameObject->SetPosition(vector3(
 		currentCamera->GetEye().x,
 		currentCamera->GetEye().y,
 		currentCamera->GetEye().z));

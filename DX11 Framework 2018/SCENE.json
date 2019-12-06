@@ -4,6 +4,27 @@
     "ModelDirectory": "Models/SeaBed.obj",
     "TextureDirectory": "Textures/sand.dds",
     "ShaderType": 3,
+    "1.0": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Canoe.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "ShaderType": 1,
+      "Position": {
+        "x": 30,
+        "y": 0,
+        "z": -30
+      },
+      "Rotation": {
+        "x": 0,
+        "y": 12,
+        "z": 0
+      },
+      "Scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      }
+    },
     "1.1": {
       "Type": "GameObject",
       "ModelDirectory": "Models/ship2.obj",
@@ -59,6 +80,7 @@
         "y": 20.31387,
         "z": 20.31387
       }
+      
     },
     "1.3": {
       "Type": "GameObject",
@@ -270,7 +292,7 @@
         "x": -100,
         "y": -1,
         "z": -100
-      }
+      } 
     },
     "1.14": {
       "Type": "GameObject",
