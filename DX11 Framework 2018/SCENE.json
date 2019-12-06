@@ -7,7 +7,7 @@
     "1.0": {
       "Type": "GameObject",
       "ModelDirectory": "Models/Canoe.obj",
-      "TextureDirectory": "Textures/mountain.dds",
+      "TextureDirectory": "Textures/canoe.dds",
       "ShaderType": 1,
       "Position": {
         "x": 30,

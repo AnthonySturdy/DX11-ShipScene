@@ -109,11 +109,11 @@ float4 PS(PS_INPUT input) : SV_Target
 	outCol = lerp(fogCol, outCol, saturate(dist * 30));	//Interpolate from output colour to fog colour based on distance
 
 	//If below sea level, turning colour more blue
+	float4 waterCol = float4(0.0f, 0.031f, 0.201f, 1.0f);
+	float4 waterDeepCol = float4(0.0f, 0.0f, 0.05f, 1.0f);
 	if (input.vPos.y < 0) {
-		outCol.r -= abs(input.vPos.y) / 50.0f;
-		outCol.g -= abs(input.vPos.y) / 50.0f;
-		outCol.b = texCol.b + (abs(input.vPos.y) / 50.0f);
-		outCol.rgb -= abs(input.vPos.y) / 20.0f;
+		outCol = lerp(outCol, waterCol, saturate(abs(input.vPos.y / 9.0f)));
+		outCol = lerp(outCol, waterDeepCol, saturate(abs(input.vPos.y / 20.0f)));
 	} 
 
 	return saturate(outCol);

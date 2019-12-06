@@ -76,7 +76,6 @@ float4 PS(PS_INPUT input) : SV_Target
 
 	//Compute the reflection vector
 	float3 r = reflect(-LightVecW, normalW);
-
 	//Determine how much specular light makes it to eye
 	float specularAmount = pow(max(dot(r, input.eyePos), 0.0f), SpecularPower);
 	//Compute colour using diffuse lighting only

@@ -1,6 +1,6 @@
 #include "GameObject_Plane.h"
 
-GameObject_Plane::GameObject_Plane(ID3D11Device* _device, std::wstring textureDir, int planeWidth, int planeDepth, vector3 initPos, vector3 initRot, vector3 initScale, Material _material, ShaderType _shaderType, bool _castShadows) : GameObject(_device, "", textureDir, initPos, initRot, initScale, _material, _shaderType, _castShadows) {
+GameObject_Plane::GameObject_Plane(ID3D11Device* _device, std::wstring textureDir, int planeWidth, int planeDepth, vector3 initPos, vector3 initRot, vector3 initScale, Material _material, ShaderType _shaderType) : GameObject(_device, "", textureDir, initPos, initRot, initScale, _material, _shaderType) {
 	width = planeWidth;
 	depth = planeDepth;
 

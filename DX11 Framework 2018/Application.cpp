@@ -367,10 +367,10 @@ void Application::Update() {
 			camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x + 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
 		}
 	}
-	if (GetAsyncKeyState(0x51)) {
+	if (GetAsyncKeyState(0x51)) {	//Q
 		camPosObject->SetPosition(vector3(camPosObject->GetPosition()->x, camPosObject->GetPosition()->y, camPosObject->GetPosition()->z + 0.005f));
 	}
-	if (GetAsyncKeyState(0x45)) {
+	if (GetAsyncKeyState(0x45)) {	//E
 		camPosObject->SetPosition(vector3(camPosObject->GetPosition()->x, camPosObject->GetPosition()->y, camPosObject->GetPosition()->z - 0.005f));
 	}
 
