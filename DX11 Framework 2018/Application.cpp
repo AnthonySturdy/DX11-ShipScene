@@ -206,13 +206,13 @@ HRESULT Application::InitDevice() {
     _pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);
 
     // Setup the viewport
-    vp.Width = (FLOAT)_WindowWidth;
-    vp.Height = (FLOAT)_WindowHeight;
-    vp.MinDepth = 0.0f;
-    vp.MaxDepth = 1.0f;
-    vp.TopLeftX = 0;
-    vp.TopLeftY = 0;
-    _pImmediateContext->RSSetViewports(1, &vp);
+    viewport.Width = (FLOAT)_WindowWidth;
+    viewport.Height = (FLOAT)_WindowHeight;
+    viewport.MinDepth = 0.0f;
+    viewport.MaxDepth = 1.0f;
+    viewport.TopLeftX = 0;
+    viewport.TopLeftY = 0;
+    _pImmediateContext->RSSetViewports(1, &viewport);
 
     // Set primitive topology
     _pImmediateContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -394,7 +394,7 @@ void Application::Draw() {
 	_pImmediateContext->RSSetState((isAllWireframe ? _wireFrameRenderState : _solidRenderState));
 	
 	//Set viewport
-	_pImmediateContext->RSSetViewports(1, &vp);
+	_pImmediateContext->RSSetViewports(1, &viewport);
 
 	//Clear Render Buffers
 	_pImmediateContext->OMSetRenderTargets(1, &_pRenderTargetView, _depthStencilView);

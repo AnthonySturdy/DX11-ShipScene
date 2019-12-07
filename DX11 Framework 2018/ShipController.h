@@ -9,7 +9,6 @@ class ShipController {
 private:
 	GameObject* ship = nullptr;
 
-	float maxSpeed = 0.5f;
 	float curSpeedX = 0.0f, curSpeedZ = 0.0f;
 	float rotationSpeed = 0.004f;
 

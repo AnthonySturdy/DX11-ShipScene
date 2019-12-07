@@ -21,8 +21,6 @@
 
 using namespace DirectX;
 
-#define SHADOW_MAP_SIZE 2048
-
 class Application
 {
 private:
@@ -43,24 +41,14 @@ private:
 	ID3D11BlendState*		_transparency;
 	ID3D11RasterizerState*	_wireFrameRenderState;
 	ID3D11RasterizerState*	_solidRenderState;
-	D3D11_VIEWPORT			vp;
+	D3D11_VIEWPORT			viewport;
 
 	Camera* currentCamera = nullptr;
 	std::vector<Camera*> cameras;
 	std::vector<Shader*> shaders;
 	std::vector<GameObject*> gameObjects;
 	SceneGraph* hierarchy;
-
 	ShipController* shipController = nullptr;
-
-	XMFLOAT3 lightDirection = XMFLOAT3(0.25f, 0.5f, -1.0f);			//Light direction from surface (x, y, z)
-	XMFLOAT4 diffuseMaterial = XMFLOAT4(0.8f, 0.5f, 0.5f, 1.0f);	//Diffuse material properties (rgba)
-	XMFLOAT4 diffuseLight = XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f);		//Diffuse light colour (rgba)
-	XMFLOAT4 ambientMaterial = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.2f);	//Ambient material properties (rgba)
-	XMFLOAT4 ambientLight = XMFLOAT4(0.2f, 0.2f, 0.2f, 0.2f);		//Ambient light colour (rgba)
-	XMFLOAT4 specularMaterial = XMFLOAT4(0.8f, 0.8f, 0.8f, 1.0f);	//Specular material properties (rgba)
-	XMFLOAT4 specularLight = XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f);		//Specular light colour (rgba)
-	float specularPower = 10.0f;									//Specular power
 
 	float _time;
 	bool isAllWireframe = false;

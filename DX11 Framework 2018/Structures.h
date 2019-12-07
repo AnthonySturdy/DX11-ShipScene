@@ -55,13 +55,6 @@ struct ConstantBuffer
 	XMFLOAT3 mEyePosW;
 };
 
-struct ShadowConstantBuffer {
-	XMMATRIX world;
-	XMMATRIX projection;
-	XMMATRIX view;
-	XMFLOAT4 pos;
-};
-
 enum ShaderType {
 	DEFAULT = 0,
 	BOAT = 1,
