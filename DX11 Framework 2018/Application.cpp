@@ -61,9 +61,12 @@ HRESULT Application::Initialise(HINSTANCE hInstance, int nCmdShow) {
 	srand(time(NULL));
 
 	//Initialise cameras
-	cameras.push_back(new Camera(XMFLOAT3(40.0f, 30.0f, 50.0f), XMFLOAT3(0.0f, 6.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));
-	cameras.push_back(new Camera(XMFLOAT3(40.0f, 40.0f, 50.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));
-	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));
+	cameras.push_back(new Camera(XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));		//Third Person
+	cameras.push_back(new Camera(XMFLOAT3(0.0f, 1.0f, 0.0f), XMFLOAT3(0.0f, 0.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));		//First Person
+	cameras.push_back(new Camera(XMFLOAT3(0.0f, 65.0f, 0.0f), XMFLOAT3(0.5f, 0.5f, 0.5f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));	//Static Scene Cam 1
+	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));	//Static Scene Cam 2
+	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));	//Static Ship Cam 1
+	cameras.push_back(new Camera(XMFLOAT3(-30.0f, 20.0f, -40.0f), XMFLOAT3(0.0f, 2.0f, 0.0f), XMFLOAT3(0.0f, 1.0f, 0.0f), _WindowWidth, _WindowHeight, 0.1f, 500.0f));	//Static Ship Cam 2
 	currentCamera = cameras[0];
 
 	//Initialise Shaders
@@ -334,6 +337,24 @@ void Application::Update() {
 		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
 		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
 	}
+	if (GetAsyncKeyState(0x34)) {
+		currentCamera = cameras[3];
+
+		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
+		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
+	}
+	if (GetAsyncKeyState(0x35)) {
+		currentCamera = cameras[4];
+
+		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
+		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
+	}
+	if (GetAsyncKeyState(0x36)) {
+		currentCamera = cameras[5];
+
+		XMStoreFloat4x4(&_view, XMMatrixLookAtLH(XMLoadFloat3(&currentCamera->GetEye()), XMLoadFloat3(&currentCamera->GetAt()), XMLoadFloat3(&currentCamera->GetUp())));
+		XMStoreFloat4x4(&_projection, currentCamera->GetProjectionMatrix());
+	}
 
 	//Update ship
 	shipController->Update();
@@ -349,11 +370,18 @@ void Application::Update() {
 	vector3 camLookAt = *shipController->GetShip()->GetPosition();
 	cameras[0]->SetEye(XMFLOAT3(camPos.x, camPos.y, camPos.z));
 	cameras[0]->SetAt(XMFLOAT3(camLookAt.x, camLookAt.y, camLookAt.z));
+	cameras[1]->SetAt(XMFLOAT3(camPos.x, camPos.y, camPos.z));
+	cameras[1]->SetEye(XMFLOAT3(camLookAt.x, camLookAt.y + 2.0f, camLookAt.z));
+	cameras[4]->SetEye(XMFLOAT3(shipController->GetShip()->GetPosition()->GetX() + 10, shipController->GetShip()->GetPosition()->GetY() + 3, shipController->GetShip()->GetPosition()->GetZ()));
+	cameras[4]->SetAt(XMFLOAT3(shipController->GetShip()->GetPosition()->GetX(), shipController->GetShip()->GetPosition()->GetY(), shipController->GetShip()->GetPosition()->GetZ()));
+	cameras[5]->SetEye(XMFLOAT3(shipController->GetShip()->GetPosition()->GetX(), shipController->GetShip()->GetPosition()->GetY() + 1, shipController->GetShip()->GetPosition()->GetZ() + 10));
+	cameras[5]->SetAt(XMFLOAT3(shipController->GetShip()->GetPosition()->GetX(), shipController->GetShip()->GetPosition()->GetY(), shipController->GetShip()->GetPosition()->GetZ()));
+	float camHorizontalMoveSpeed = (currentCamera == cameras[0] ? 0.03f : -0.03f);
 	if (GetAsyncKeyState(VK_LEFT)) {
-		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y + 0.03f, camPosParentObject->GetRotation()->z));
+		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y + camHorizontalMoveSpeed, camPosParentObject->GetRotation()->z));
 	} 
 	if (GetAsyncKeyState(VK_RIGHT)) {
-		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y - 0.03f, camPosParentObject->GetRotation()->z));
+		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x, camPosParentObject->GetRotation()->y - camHorizontalMoveSpeed, camPosParentObject->GetRotation()->z));
 	}
 	if (GetAsyncKeyState(VK_UP)) {
 		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x + 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
@@ -363,7 +391,7 @@ void Application::Update() {
 	}
 	if (GetAsyncKeyState(VK_DOWN)) {
 		camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x - 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
-		if (camPosParentObject->GetRotation()->x < -25) {
+		if (camPosParentObject->GetRotation()->x < -45) {
 			camPosParentObject->SetRotation(vector3(camPosParentObject->GetRotation()->x + 0.03f, camPosParentObject->GetRotation()->y, camPosParentObject->GetRotation()->z));
 		}
 	}
