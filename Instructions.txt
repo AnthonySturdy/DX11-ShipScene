@@ -1,0 +1,2 @@
+Open "working exe" folder.
+Open DX11 Framework.exe

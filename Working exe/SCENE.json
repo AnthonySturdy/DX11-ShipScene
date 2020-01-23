@@ -1,0 +1,309 @@
+{
+  "0": {
+    "Type": "GameObject", 
+    "ModelDirectory": "Models/SeaBed.obj",
+    "TextureDirectory": "Textures/sand.dds",
+    "ShaderType": 3,
+    "1.0": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Canoe.obj",
+      "TextureDirectory": "Textures/canoe.dds",
+      "ShaderType": 1,
+      "Position": {
+        "x": 30,
+        "y": 0,
+        "z": -30
+      },
+      "Rotation": {
+        "x": 0,
+        "y": 12,
+        "z": 0
+      },
+      "Scale": {
+        "x": 1,
+        "y": 1,
+        "z": 1
+      }
+    },
+    "1.1": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/ship2.obj",
+      "TextureDirectory": "Textures/pirateship.dds",
+      "ShaderType": 1,
+      "Position": {
+        "x": -30,
+        "y": -0.8,
+        "z": 30
+      },
+      "Rotation": {
+        "x": 0,
+        "y": 15,
+        "z": 0
+      },
+      "Scale": {
+        "x": 0.15,
+        "y": 0.15,
+        "z": 0.15
+      },
+      "2.1": {
+        "Type": "GameObject",
+        "ModelDirectory": "Models/Skybox.obj",
+        "TextureDirectory": "Textures/transparent.dds",
+        "3.1": {
+          "Type": "GameObject",
+          "ModelDirectory": "Models/Skybox.obj",
+          "TextureDirectory": "Textures/transparent.dds",
+          "Position": {
+            "x": 0,
+            "y": 10,
+            "z": -20
+          }
+        }
+      }
+    },
+    "1.2": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Rock1New.obj",
+      "TextureDirectory": "Textures/rock.dds",
+      "Position": {
+        "x": 63.6,
+        "y": -7.6,
+        "z": 97.2
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -72.703,
+        "z": 0
+      },
+      "Scale": {
+        "x": 20.31387,
+        "y": 20.31387,
+        "z": 20.31387
+      }
+      
+    },
+    "1.3": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": 19.1,
+        "y": -2.1,
+        "z": 123.1
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -181.216,
+        "z": 0
+      },
+      "Scale": {
+        "x": 13.6289,
+        "y": 7.236645,
+        "z": 5.34436
+      }
+    },
+    "1.4": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": 106.9,
+        "y": -2.7,
+        "z": 38
+      },
+      "Rotation": {
+        "x": 0,
+        "y": 0,
+        "z": 0
+      },
+      "Scale": {
+        "x": 10,
+        "y": 10,
+        "z": 10
+      }
+    },
+    "1.5": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": 108.6,
+        "y": -6.2,
+        "z": -54.6
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -161.888,
+        "z": 0
+      },
+      "Scale": {
+        "x": 8.5,
+        "y": 7.777222,
+        "z": 8.5
+      }
+    },
+    "1.6": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": 64.7,
+        "y": -12.5,
+        "z": -103.7
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -181.216,
+        "z": 0
+      },
+      "Scale": {
+        "x": 13.6289,
+        "y": 7.236645,
+        "z": 5.34436
+      }
+    },
+    "1.7": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Rock1New.obj",
+      "TextureDirectory": "Textures/rock.dds",
+      "Position": {
+        "x": 3.4,
+        "y": -6.4,
+        "z": -105
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -72.703,
+        "z": 0
+      },
+      "Scale": {
+        "x": 19,
+        "y": 26.01068,
+        "z": 20
+      }
+    },
+    "1.8": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Rock1New.obj",
+      "TextureDirectory": "Textures/rock.dds",
+      "Position": {
+        "x": -38.5,
+        "y": 21.3,
+        "z": 110.5
+      },
+      "Rotation": {
+        "x": -182.378,
+        "y": -85.17499,
+        "z": 0
+      },
+      "Scale": {
+        "x": 20.31387,
+        "y": 20.31387,
+        "z": 20.31387
+      }
+    },
+    "1.9": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": -110,
+        "y": -6.2,
+        "z": -54.7
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -17.629,
+        "z": 0
+      },
+      "Scale": {
+        "x": 8.5,
+        "y": 7.777222,
+        "z": 8.5
+      }
+    },
+    "1.10": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": -115,
+        "y": -12.5,
+        "z": 10.8
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -78.138,
+        "z": 0
+      },
+      "Scale": {
+        "x": 13.6289,
+        "y": 7.236645,
+        "z": 5.34436
+      }
+    },
+    "1.11": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Rock1New.obj",
+      "TextureDirectory": "Textures/rock.dds",
+      "Position": {
+        "x": -69.2,
+        "y": 38.8,
+        "z": -115.9
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -252.795,
+        "z": -189.493
+      },
+      "Scale": {
+        "x": 20.31387,
+        "y": 42.84105,
+        "z": 37.66578
+      }
+    },
+    "1.12": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/SandMountain.obj",
+      "TextureDirectory": "Textures/mountain.dds",
+      "Position": {
+        "x": -91.1,
+        "y": -12.5,
+        "z": 70
+      },
+      "Rotation": {
+        "x": 0,
+        "y": -234.1841,
+        "z": 0
+      },
+      "Scale": {
+        "x": 16.02486,
+        "y": 8.818576,
+        "z": 5.34436
+      }
+    },
+    "1.13": {
+      "Type": "GameObject_Plane",
+      "TextureDirectory": "Textures/water.dds",
+      "PlaneWidth": 200,
+      "PlaneHeight": 200,
+      "ShaderType": 2,
+      "Position": {
+        "x": -100,
+        "y": -1,
+        "z": -100
+      } 
+    },
+    "1.14": {
+      "Type": "GameObject",
+      "ModelDirectory": "Models/Skybox.obj",
+      "TextureDirectory": "Textures/skybox.dds",
+      "ShaderType": 4,
+      "Scale": {
+        "x": 600,
+        "y": 600,
+        "z": 600
+      }
+    }
+  }
+}
